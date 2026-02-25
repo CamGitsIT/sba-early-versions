@@ -1,836 +1,556 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OverIT • 455 Glen Iris Experience Center | SBA 7(a) Prospectus</title>
+    <title>OverIT - SBA Loan Commercial Risk Assessment</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', system_ui, sans-serif;
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            height: 300px; 
+            max-height: 400px; 
         }
-
-        .serif {
-            font-family: 'Playfair Display', serif;
+        .card { 
+            background: white; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
-        .card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-        }
-
-        .hero-bg {
-            background-image: linear-gradient(rgba(15,23,42,0.78), rgba(15,23,42,0.88)), url('IMG_2145.JPG');
-            background-size: cover;
-            background-position: center;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            height: 22px;
-            width: 22px;
-            background: #0ea5e9;
-            border-radius: 9999px;
-            box-shadow: 0 10px 15px -3px rgb(14 165 233 / 0.3);
-        }
-
-        .coin {
-            animation: spin-coin 8s linear infinite;
-        }
-
-        @keyframes spin-coin {
-            to {
-                transform: rotateY(360deg);
-            }
-        }
-
-        .coin-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .coin-front {
-            transform: rotateY(0deg);
-        }
-
-        .coin-back {
-            transform: rotateY(180deg);
-        }
-
-        .coin-wrapper {
-            perspective: 1000px;
-        }
-
-        .coin {
-            transform-style: preserve-3d;
-        }
-
-        .scenario-btn.active {
-            background-color: #f8fafc;
-            color: #0f172a;
-            font-weight: 600;
-        }
-
-        @media print {
-            body {
-                display: none !important;
-            }
-        }
+        .highlight-bar { border-left: 4px solid #0ea5e9; }
+        .scenario-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
+        .stat-value { font-variant-numeric: tabular-nums; }
+        
+        /* Custom scrollbar for clean look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
+    <!-- Chosen Palette: "Trust & Tech" - Slate (Backgrounds/Text) + Sky/Blue (Primary Actions/Data) + Emerald (Positive Financials) -->
+    <!-- Application Structure Plan: 
+         1. Header: Loan Request Summary (The "Ask").
+         2. Global Scenario Switcher: Controls the entire narrative (Floor vs Base vs Stretch).
+         3. Repayment Capacity Dashboard: DSCR Gauge & Cash Flow Chart.
+         4. Business Ecosystem: The 3 interlocking revenue streams explained.
+         5. Market Disruption: TCO Chart showing why the product wins.
+         6. Risk & Property: SWOT and Collateral details.
+    -->
+    <!-- Visualization & Content Choices:
+         - DSCR Chart: Bar/Line combo to show "Cash Available" vs "Debt Service" line. Goal: Show the gap (safety margin).
+         - Revenue Mix: Donut chart. Goal: Show diversification across the 3 lines.
+         - TCO Line Chart: Comparison of DoorKing vs UniFi. Goal: Visualize the 77% savings sales pitch.
+         - Justification: Chart.js is used for all dynamic rendering based on the Scenario Switcher.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="bg-zinc-50 text-zinc-900">
+<body class="antialiased">
 
-    <!-- NAV (V5 - NO PRINT) -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-b border-zinc-200">
-        <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-x-3">
-                <div class="w-9 h-9 bg-zinc-900 rounded-2xl flex items-center justify-center text-white font-black text-3xl leading-none">O</div>
-                <div>
-                    <span class="font-bold tracking-tighter text-3xl">Over<span class="text-sky-600">IT</span></span>
+    <!-- Sticky Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold tracking-tight text-slate-900">Over<span class="text-sky-600">IT</span></span>
+                    <span class="ml-4 px-3 py-1 rounded-full bg-slate-100 text-xs font-medium text-slate-500 hidden sm:inline-block">SBA 7(a) Application Prospectus</span>
                 </div>
+                <div class="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
+                    <a href="#executive" class="hover:text-sky-600 transition">Executive Summary</a>
+                    <a href="#financials" class="hover:text-sky-600 transition">Repayment Model</a>
+                    <a href="#ecosystem" class="hover:text-sky-600 transition">Business Lines</a>
+                    <a href="#risk" class="hover:text-sky-600 transition">Risk & Collateral</a>
+                </div>
+                <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition">Print PDF</button>
             </div>
-            <div class="hidden lg:flex items-center gap-x-8 text-sm font-medium">
-                <a href="#property" class="hover:text-sky-600 transition-colors">The Property</a>
-                <a href="#lines" class="hover:text-sky-600 transition-colors">Lines of Business</a>
-                <a href="#winwin" class="hover:text-sky-600 transition-colors">Win-Win</a>
-                <a href="#tco" class="hover:text-sky-600 transition-colors">Market Disruption</a>
-                <a href="#modeler" class="hover:text-sky-600 transition-colors">Repayment Model</a>
-                <a href="#impact" class="hover:text-sky-600 transition-colors">SBA Impact</a>
-                <a href="#leadership" class="hover:text-sky-600 transition-colors">Leadership</a>
-            </div>
-            <a href="#pledge" class="bg-zinc-900 hover:bg-emerald-600 text-white px-6 py-2.5 rounded-2xl text-sm font-semibold transition-all">Support Us</a>
         </div>
     </nav>
 
-    <!-- HERO (V5 adjusted) -->
-    <section id="hero" class="hero-bg h-screen flex items-center text-white relative">
-        <div class="max-w-5xl mx-auto px-6 relative z-10">
-            <div class="max-w-2xl">
-                <div class="inline-flex items-center gap-x-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-3xl text-sm mb-6">
-                    <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                    SBA 7(a) Commercial Real Estate
-                </div>
-                <h1 class="text-6xl md:text-7xl font-bold tracking-tighter leading-none mb-6">
-                    The <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 to-emerald-300">"No-OpEx"</span> Disruptor<br>UniFi's First<br>Experience Center
-                </h1>
-                <p class="text-xl text-white/80 leading-relaxed mb-8">
-                    Acquiring 455 Glen Iris Dr NE, Atlanta for $640k to launch a flagship Ubiquiti experiance center with multiple synergistic, recession-thriving lines of business. 
-                    Debt service covered by our Training Studio alone.
-                </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div class="bg-white/10 backdrop-blur-md p-5 rounded-3xl">
-                        <div class="text-emerald-300 text-xs tracking-widest uppercase">Loan Request</div>
-                        <div class="text-4xl font-semibold">$640k</div>
-                        <div class="text-white/70 mt-1">Acquisition &amp; Imp.</div>
-                    </div>
-                    <div class="bg-white/10 backdrop-blur-md p-5 rounded-3xl">
-                        <div class="text-emerald-300 text-xs tracking-widest uppercase">Property Value</div>
-                        <div class="text-4xl font-semibold">$800k</div>
-                        <div class="text-white/70 mt-1">Owner-Occupied</div>
-                    </div>
-                    <div class="bg-white/10 backdrop-blur-md p-5 rounded-3xl">
-                        <div class="text-emerald-300 text-xs tracking-widest uppercase">Annual Debt Svc</div>
-                        <div class="text-4xl font-semibold">~$55k</div>
-                        <div class="text-white/70 mt-1">@ ~7.0% / 25yr</div>
-                    </div>
-                    <div class="bg-white/10 backdrop-blur-md p-5 rounded-3xl">
-                        <div class="text-emerald-300 text-xs tracking-widest uppercase">Min DSCR</div>
-                        <div class="text-4xl font-semibold text-emerald-400">1.67x</div>
-                        <div class="text-white/70 mt-1">Worst-case</div>
-                    </div>
-                </div>
-                <div class="mt-10 flex items-center gap-x-4">
-                    <a href="#property" class="bg-white text-zinc-900 px-8 py-4 rounded-3xl font-semibold flex items-center gap-x-3 hover:bg-emerald-100 transition-colors">
-                        See the Property
-                        <span class="text-2xl">→</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
 
-    <!-- PROPERTY (V5 carousel) -->
-    <section id="property" class="max-w-7xl mx-auto px-6 py-20">
-        <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-                <div class="relative overflow-hidden rounded-3xl shadow-2xl">
-                    <div id="slides" class="flex transition-transform duration-700 ease-in-out">
-                        <img src="455-glen-iris-dr-ne-unit-p-atlanta-ga-building-photo.jpg" class="w-full flex-shrink-0 object-cover h-96 md:h-[500px]">
-                        <img src="b3556a907589f6fbfb44bfdf5f65d5bc-cc_ft_960.jpg" class="w-full flex-shrink-0 object-cover h-96 md:h-[500px]">
-                        <img src="935478657142e45c960f3b1db567b694-cc_ft_1536.jpg" class="w-full flex-shrink-0 object-cover h-96 md:h-[500px]">
-                        <img src="IMG_2145.JPG" class="w-full flex-shrink-0 object-cover h-96 md:h-[500px]">
-                    </div>
-                    <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow text-zinc-900">←</button>
-                    <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow text-zinc-900">→</button>
+        <!-- 1. Executive Summary & Loan Request -->
+        <section id="executive" class="space-y-6">
+            <div class="text-center max-w-3xl mx-auto">
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">The "No-OpEx" Disruption</h1>
+                <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                    OverIT is acquiring <strong>455 Glen Iris Dr NE</strong> to launch a unique "Experience Center" that powers three interlocking business lines. 
+                    In a high-interest economy, we displace legacy vendors (DoorKing) by eliminating monthly fees, creating a recession-resilient revenue model.
+                </p>
+            </div>
+
+            <!-- Loan Snapshot Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+                <div class="card p-6 border-t-4 border-sky-500">
+                    <div class="text-xs font-semibold text-slate-400 uppercase">Loan Request</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">$640,000</div>
+                    <div class="text-sm text-slate-500 mt-1">Acquisition & Imp.</div>
+                </div>
+                <div class="card p-6 border-t-4 border-sky-500">
+                    <div class="text-xs font-semibold text-slate-400 uppercase">Property Value</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">$800,000</div>
+                    <div class="text-sm text-slate-500 mt-1">Owner-Occupied</div>
+                </div>
+                <div class="card p-6 border-t-4 border-sky-500">
+                    <div class="text-xs font-semibold text-slate-400 uppercase">Annual Debt Svc</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">~$55,200</div>
+                    <div class="text-sm text-slate-500 mt-1">@ ~7.0% / 25yr</div>
+                </div>
+                <div class="card p-6 border-t-4 border-emerald-500 bg-emerald-50">
+                    <div class="text-xs font-semibold text-emerald-600 uppercase">Min DSCR (Floor)</div>
+                    <div class="text-3xl font-bold text-emerald-700 mt-1" id="header-dscr">1.67x</div>
+                    <div class="text-sm text-emerald-600 mt-1">Worst-case Scenario</div>
                 </div>
             </div>
-            <div class="space-y-8">
+        </section>
+
+        <!-- 2. Interactive Financial Model -->
+        <section id="financials" class="card p-8 bg-white ring-1 ring-slate-900/5">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <span class="uppercase text-xs tracking-[2px] font-medium text-sky-600">Atlanta, GA • Mixed-Use Flagship</span>
-                    <h2 class="text-4xl font-semibold tracking-tight mt-3">455 Glen Iris Dr NE</h2>
-                    <p class="text-zinc-600 mt-4 text-lg">Owner-occupied Experience Center with high-visibility street presence, modern interiors, and proven $850k appraisal (Dec 2025).</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Ability to Repay Analysis</h2>
+                    <p class="text-slate-500 text-sm mt-1">Toggle scenarios to stress-test the business model against the debt service.</p>
                 </div>
-                <div class="grid grid-cols-3 gap-6 text-center">
-                    <div class="border-l-4 border-emerald-500 pl-6">
-                        <div class="text-3xl font-semibold">2,100</div>
-                        <div class="text-xs uppercase tracking-widest text-zinc-500">Sq Ft</div>
-                    </div>
-                    <div class="border-l-4 border-emerald-500 pl-6">
-                        <div class="text-3xl font-semibold">2025</div>
-                        <div class="text-xs uppercase tracking-widest text-zinc-500">Appraised</div>
-                    </div>
-                    <div class="border-l-4 border-emerald-500 pl-6">
-                        <div class="text-3xl font-semibold">$850k</div>
-                        <div class="text-xs uppercase tracking-widest text-zinc-500">Value</div>
-                    </div>
+                <!-- Scenario Switcher -->
+                <div class="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 shadow-sm">
+                    <button onclick="setScenario('floor')" id="btn-floor" class="scenario-btn px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 focus:outline-none transition-all active">Conservative (Floor)</button>
+                    <button onclick="setScenario('base')" id="btn-base" class="scenario-btn px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 focus:outline-none transition-all">Base Case</button>
+                    <button onclick="setScenario('stretch')" id="btn-stretch" class="scenario-btn px-4 py-2 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 focus:outline-none transition-all">Stretch</button>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- SYNERGISTIC LINES OF BUSINESS (V5 renamed, no pillar numbers) -->
-    <section id="lines" class="bg-zinc-900 py-24 text-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <div class="inline-flex items-center gap-2 bg-white/10 px-5 py-2 rounded-full text-sky-300 text-sm">ONE ROOF • SHARED OPEX • MAX ROI</div>
-                <h2 class="text-5xl font-semibold tracking-tighter mt-6">Synergistic Lines of Business</h2>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="card bg-zinc-800 rounded-3xl overflow-hidden card-hover">
-                    <img src="IMG_2146.JPG" class="w-full h-56 object-cover">
-                    <div class="p-8">
-                        <h3 class="text-2xl font-semibold">Zero-Inventory Retail</h3>
-                        <p class="text-zinc-400 mt-4 text-sm leading-relaxed">Hands-on UniFi showroom. Corporate gifts display hardware. 10% drop-ship commission. Zero inventory risk. Low cost to open additional locations.</p>
-                    </div>
+            <!-- Key Metrics Row (Dynamic) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 border-b border-slate-100 pb-8">
+                <div class="text-center md:text-left">
+                    <div class="text-sm font-medium text-slate-400">Total Contribution (Gross Profit)</div>
+                    <div class="text-3xl font-bold text-slate-900 mt-1 tracking-tight" id="val-contribution">$922,020</div>
+                    <p class="text-xs text-slate-500 mt-2">Combined revenue after COGS from all 3 lines.</p>
                 </div>
-                <div class="card bg-zinc-800 rounded-3xl overflow-hidden card-hover">
-                    <img src="455-glen-iris-dr-ne-unit-p-atlanta-ga-building-photo.jpg" class="w-full h-56 object-cover">
-                    <div class="p-8">
-                        <h3 class="text-2xl font-semibold">Multi-Family Retrofits</h3>
-                        <p class="text-zinc-400 mt-4 text-sm leading-relaxed">"DoorKing & ButterflyMX Killer". 77% 3-year TCO savings. Counter-cyclical cash cow.</p>
-                    </div>
+                <div class="text-center md:text-left">
+                    <div class="text-sm font-medium text-slate-400">Est. Net Operating Income (NOI)</div>
+                    <div class="text-3xl font-bold text-slate-900 mt-1 tracking-tight" id="val-noi">$92,202</div>
+                    <p class="text-xs text-slate-500 mt-2">Conservatively estimated at 10% of Contribution.</p>
                 </div>
-                <div class="card bg-zinc-800 rounded-3xl overflow-hidden card-hover">
-                    <img src="IMG_2157.JPG" class="w-full h-56 object-cover">
-                    <div class="p-8">
-                        <h3 class="text-2xl font-semibold">National In-Person and Virtual Training Studio</h3>
-                        <p class="text-zinc-400 mt-4 text-sm leading-relaxed">Ubiquiti Academy certifications. Covers entire debt service. Feeds alumni installer network. Unlimited potential</p>
-                    </div>
-                </div>
-                <div class="card bg-zinc-800 rounded-3xl overflow-hidden card-hover">
-                    <img src="935478657142e45c960f3b1db567b694-cc_ft_1536.jpg" class="w-full h-56 object-cover">
-                    <div class="p-8">
-                        <h3 class="text-2xl font-semibold">Multi-Location Retail Modernization</h3>
-                        <p class="text-zinc-400 mt-4 text-sm leading-relaxed">Standardized network rollouts for multi-location retail brands (10-50 locations). Scalable 15% uplift model. Experience Center closes enterprise deals.</p>
-                    </div>
+                <div class="text-center md:text-left">
+                    <div class="text-sm font-medium text-slate-400">Debt Service Coverage (DSCR)</div>
+                    <div class="text-4xl font-extrabold text-emerald-600 mt-1 tracking-tight" id="val-dscr">1.67x</div>
+                    <p class="text-xs text-slate-500 mt-2">Target > 1.25x. (NOI / $55,200 Debt Svc)</p>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- WIN-WIN (V5) -->
-    <section id="winwin" class="max-w-7xl mx-auto px-6 py-24">
-        <h2 class="text-4xl font-semibold tracking-tight text-center mb-12">Every Stakeholder Wins</h2>
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="card bg-white rounded-3xl p-8 cursor-pointer card-hover" onclick="toggleWin(this)">
-                <div class="text-4xl mb-6">🏢</div>
-                <h3 class="font-semibold text-lg">The Property Owner / HOA</h3>
-                <div class="win-content hidden mt-6 text-sm text-zinc-600">Eliminates $150+/mo phone line fees. Pure CapEx increases NOI and property value.</div>
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Cash Flow Chart -->
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900 mb-4 flex items-center">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>
+                        Cash Flow vs. Debt Service Requirement
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="dscrChart"></canvas>
+                    </div>
+                </div>
+                <!-- Revenue Mix Chart -->
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900 mb-4 flex items-center">
+                        <span class="w-2 h-2 bg-sky-500 rounded-full mr-2"></span>
+                        Revenue Source Diversification
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="mixChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="card bg-white rounded-3xl p-8 cursor-pointer card-hover" onclick="toggleWin(this)">
-                <div class="text-4xl mb-6">💼</div>
-                <h3 class="font-semibold text-lg">The Property Manager</h3>
-                <div class="win-content hidden mt-6 text-sm text-zinc-600">Issue keys remotely. 100% cloud management. No more site visits for fobs.</div>
+            
+            <div class="mt-6 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <p class="text-sm text-slate-600 italic" id="scenario-desc">
+                    <strong>Conservative Scenario Assumption:</strong> Based <em>solely</em> on minimum viable capacity of the Training Studio and Enablement services. Assumes ZERO revenue from large Retail rollouts or Multi-family retrofits to demonstrate the "Floor" safety net.
+                </p>
             </div>
-            <div class="card bg-white rounded-3xl p-8 cursor-pointer card-hover" onclick="toggleWin(this)">
-                <div class="text-4xl mb-6">🏠</div>
-                <h3 class="font-semibold text-lg">The Resident</h3>
-                <div class="win-content hidden mt-6 text-sm text-zinc-600">Unlock with phone. High-def video calls. Never miss a delivery again.</div>
-            </div>
-            <div class="card bg-white rounded-3xl p-8 cursor-pointer card-hover" onclick="toggleWin(this)">
-                <div class="text-4xl mb-6">🔧</div>
-                <h3 class="font-semibold text-lg">Alumni Installer</h3>
-                <div class="win-content hidden mt-6 text-sm text-zinc-600">Turnkey projects handed to you. Steady work from the Experience Center pipeline.</div>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- TCO (V4) -->
-    <section id="tco" class="max-w-7xl mx-auto px-6 py-24 bg-white">
-        <div class="grid lg:grid-cols-2 gap-16">
-            <div>
-                <h2 class="text-4xl font-semibold tracking-tight">Market Disruption: CapEx vs Perpetual OpEx</h2>
-                <p class="mt-6 text-zinc-600 max-w-md">In a high-rate economy, property owners crave certainty. We replace expensive subscriptions with one-time hardware.</p>
-                <div class="mt-12 space-y-12">
-                    <div>
-                        <div class="flex justify-between mb-3">
-                            <div class="font-medium">DoorKing (Legacy)</div>
-                            <div class="font-mono text-rose-600">3-Year TCO: $18,018</div>
-                        </div>
-                        <div class="h-2 bg-zinc-200 rounded-full overflow-hidden">
-                            <div class="h-2 w-[77%] bg-rose-500"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between mb-3">
-                            <div class="font-medium">ButterflyMX (Subscription)</div>
-                            <div class="font-mono text-rose-600">3-Year TCO: $22,800</div>
-                        </div>
-                        <div class="h-2 bg-zinc-200 rounded-full overflow-hidden">
-                            <div class="h-2 w-[95%] bg-rose-500"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="space-y-8">
-                <div class="bg-white p-8 rounded-3xl card border border-zinc-200">
-                    <canvas id="tcoDK" class="chart-container h-64"></canvas>
-                </div>
-                <div class="bg-white p-8 rounded-3xl card border border-zinc-200">
-                    <canvas id="tcoBMX" class="chart-container h-64"></canvas>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ABILITY TO REPAY ANALYSIS (HYBRID) -->
-    <section id="modeler" class="py-24 bg-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="card p-8 bg-white ring-1 ring-slate-900/5">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div>
-                        <h2 class="text-3xl font-bold text-slate-900">Ability to Repay Analysis</h2>
-                        <p class="text-slate-500 text-sm mt-1">Toggle scenarios or adjust sliders to stress-test the business model against the debt service.</p>
-                    </div>
-                    <div class="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 shadow-sm">
-                        <button onclick="setScenario('floor')" id="btn-floor" class="scenario-btn px-6 py-3 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 transition-all active">Conservative (Floor)</button>
-                        <button onclick="setScenario('base')" id="btn-base" class="scenario-btn px-6 py-3 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 transition-all">Base Case</button>
-                        <button onclick="setScenario('stretch')" id="btn-stretch" class="scenario-btn px-6 py-3 text-sm font-medium rounded-md text-slate-600 hover:text-slate-900 transition-all">Stretch</button>
-                    </div>
-                </div>
-
-                <!-- Full 5 Sliders -->
-                <div class="space-y-8">
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="font-medium">Training Seats (Monthly)</span>
-                            <span id="val-train" class="font-mono">35</span>
-                        </div>
-                        <input type="range" id="sl-train" min="10" max="100" value="35" class="w-full accent-sky-600" oninput="updateModel()">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="font-medium">DoorKing Retrofits (Monthly)</span>
-                            <span id="val-dk" class="font-mono">4</span>
-                        </div>
-                        <input type="range" id="sl-dk" min="0" max="20" value="4" class="w-full accent-rose-600" oninput="updateModel()">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="font-medium">ButterflyMX Retrofits (Monthly)</span>
-                            <span id="val-bmx" class="font-mono">2</span>
-                        </div>
-                        <input type="range" id="sl-bmx" min="0" max="12" value="2" class="w-full accent-purple-600" oninput="updateModel()">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="font-medium">Retail Network Sites (Monthly)</span>
-                            <span id="val-ret" class="font-mono">12</span>
-                        </div>
-                        <input type="range" id="sl-ret" min="0" max="40" value="12" class="w-full accent-amber-600" oninput="updateModel()">
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-sm mb-2">
-                            <span class="font-medium">Walk-In Revenue (Monthly)</span>
-                            <span id="val-walk" class="font-mono">$65,000</span>
-                        </div>
-                        <input type="range" id="sl-walk" min="10000" max="200000" value="65000" step="5000" class="w-full accent-emerald-600" oninput="updateModel()">
-                    </div>
-                </div>
-
-                <!-- Metrics Row -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 my-12 border-b border-slate-100 pb-12">
-                    <div class="text-center">
-                        <div class="text-sm font-medium text-slate-400">Gross Margin</div>
-                        <div id="out-margin" class="text-4xl font-bold text-slate-900">$1,248,000</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-sm font-medium text-slate-400">Net Operating Income</div>
-                        <div id="out-noi" class="text-4xl font-bold text-slate-900">$428,000</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-sm font-medium text-slate-400">Debt Service Coverage</div>
-                        <div id="out-dscr" class="text-5xl font-black text-emerald-600">7.76×</div>
-                    </div>
-                </div>
-
-                <!-- Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-8 rounded-3xl border border-slate-100">
-                        <div class="text-sm font-semibold text-slate-900 mb-6">Revenue Mix</div>
-                        <canvas id="mixChart" height="280"></canvas>
-                    </div>
-                    <div class="bg-white p-8 rounded-3xl border border-slate-100">
-                        <div class="text-sm font-semibold text-slate-900 mb-6">NOI vs Debt Service</div>
-                        <canvas id="cashChart" height="280"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- IMPACT (merged V4 & V5) -->
-    <section id="impact" class="py-24 bg-gradient-to-b from-zinc-900 to-zinc-950 text-white">
-        <div class="max-w-5xl mx-auto px-6 text-center">
-            <div class="text-emerald-400 text-sm tracking-[3px] font-medium">SBA COMMUNITY WIN</div>
-            <h2 class="text-5xl font-semibold tracking-tighter mt-6">We don't hire installers.<br>We create them.</h2>
-            <p class="max-w-2xl mx-auto mt-8 text-lg text-zinc-400">Training 100+ local IT professionals per year through Ubiquiti Academy and feeding them turnkey projects. Each graduate becomes an independent small business creating jobs and tax revenue.</p>
-            <div class="mt-16 grid md:grid-cols-3 gap-8">
-                <div class="bg-white/10 backdrop-blur-md p-8 rounded-3xl">
-                    <img src="IMG_2157.JPG" class="w-full h-40 object-cover rounded-2xl mb-6">
-                    <div class="text-xl font-semibold">Hands-On Training</div>
-                </div>
-                <div class="bg-white/10 backdrop-blur-md p-8 rounded-3xl">
-                    <img src="935478657142e45c960f3b1db567b694-cc_ft_1536.jpg" class="w-full h-40 object-cover rounded-2xl mb-6">
-                    <div class="text-xl font-semibold">Real-World Projects</div>
-                </div>
-                <div class="bg-white/10 backdrop-blur-md p-8 rounded-3xl">
-                    <img src="IMG_2145.JPG" class="w-full h-40 object-cover rounded-2xl mb-6">
-                    <div class="text-xl font-semibold">Independent Businesses</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- LEADERSHIP (NEW) -->
-    <section id="leadership" class="max-w-7xl mx-auto px-6 py-24">
-        <div class="text-center mb-16">
-            <h2 class="text-5xl font-semibold tracking-tighter">At the Helm</h2>
-        </div>
-        <div class="grid md:grid-cols-2 gap-12">
-            <div class="card bg-white rounded-3xl overflow-hidden card-hover">
-                <img src="cameron-champion.png" class="w-full h-80 object-cover">
-                <div class="p-10">
-                    <div class="font-semibold text-2xl">Cameron Champion</div>
-                    <div class="text-emerald-600">Founder & Visionary</div>
-                    <button onclick="document.getElementById('canvas-modal').classList.remove('hidden')" class="mt-8 w-full py-4 bg-zinc-900 text-white rounded-2xl font-semibold">Read Full Canvas Letter →</button>
-                </div>
-            </div>
-            <div class="card bg-white rounded-3xl overflow-hidden card-hover">
-                <img src="john-shea.jpg" class="w-full h-80 object-cover">
-                <div class="p-10">
-                    <div class="font-semibold text-2xl">John Shea</div>
-                    <div class="text-sky-600">Strategic Partner & Operations</div>
-                    <p class="mt-6 text-sm text-zinc-600">John brings critical operational leadership and strategic vision. He ensures flawless execution across real estate acquisition, national rollout coordination, and commercial banking relationships.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CANVAS MODAL -->
-    <div id="canvas-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[999]">
-        <div class="max-w-2xl bg-white rounded-3xl p-12 max-h-[90vh] overflow-auto">
-            <button onclick="document.getElementById('canvas-modal').classList.add('hidden')" class="float-right text-3xl">×</button>
-            <h3 class="serif text-4xl font-semibold mb-8">Canvas: The Power to Create</h3>
-            <div class="prose text-zinc-700">
-                <p>My name is Cameron Champion. My journey life taught me early that no barrier stands between me and my goals – except the ones I believe are there. My mentors have shown me that loving without expectation is the only force capable of healing the soul. Curiosity or taking on challenges simply for the sake of doing so is all one needs to bring excitement for what tomorrow may hold. Any fears of the unknown are quelled by authentically being driven by a desire to leave everything you touch better than you found it – and if you mess something up, take it as the challenge it is – be better, and figure out how to leave something better because of it. At all times, and especially when you don't know what to do, just treat others as you'd like to be treated. My grandmother taught me that these ideas transcend culture, religion, language, and time. Try to inspire others when possible, even if all you do is let them see you act on what feels right to you. And most importantly, she said, never forget who you are… because people need you to be you.</p>
-                <p>I didn't understand all of that as a child, of course, yet it stuck with me because, thankfully, she left that guiding light of hers inside of me. She left it to my mother, and I was lucky enough to feel it as I grew, learned, adventured, became strong in myself, and eventually started creating things of my own.</p>
-                <p>It was only when I learned to share these things with others, that I found other creators, and together, built great things that were bigger than self and had a life of their own.</p>
-                <p>Perfect, right? Except, those great things brought a sense of pride, and a drive to protect them. When the chosen family of creators who collaborated in building those great things were harmed, I stopped creating and lost myself in pursuit of the person who chose to harm them. </p>
-                <p>That period of darkness, when I woke each day to fight for the return of something stolen, for anything that could make it make sense – what a waste. I realized that thieves wouldn't need to steal if they weren't desperate... and desperately, I tried to understand... but when creators choose to fixate on loss, grief, or the results of their creations more than the act of creating itself – we inadvertently create a cancer in ourselves which makes us forget who we are… it holds us in darkness… isolates us from joy and from each other… it renders us inconsequential to all those who we may otherwise have benefited had we just kept creating. </p>
-                <p>This "smallness" eats away at us... until we're completely empty. </p>
-                <p>For far too long I made it my mission to pursue the billionaire who, without need, stole all of the monetary rewards held "safe" for my Surterra / Parallel chosen family of creators, and for each of your own families, after your years of sacrifice in service to all we built together. I felt responsible, and fought until everything was gone. One of you found me recently, and in a brief conversation, we acknowledged the emptiness we saw in each other... and as we  uncomfortably spoke of the challenges we shared, authentic laughter replaced that loss and grief, and somehow that emptiness occurred, once again, as the same blank canvas from which every creation had always come. </p>
-                <p>It was always there. It could never be stolen. </p>
-                <p>I wasn't responsible for the theft. Finally, I understand that fact. My responsibility was to continue to guide, inspire, and remind you all to keep creating in the face of that loss which hurt so badly. To all of you, I apologize for losing sight of that responsibility and for failing in that loss to be the leader who brought us all together to do what we did. </p>
-                <p>My promise to you: Never Again.</p>
-                <p>To all who have given of themselves, or will, to resource and shape this endeavor: </p>
-                <p>This mission of this institution, which we will grow until it lives on its own momentum, will leave those in the wake of its impact, better.. Better for having experienced it themselves, and better able to positively impact others.. Simply because. This we build, leave, and dedicate in admiration and honor to all the truly rare humans (and working animals) who, together, built a lasting legacy that still serves communities who love, live, and count days by the minute -- because, you cared. Even in the worst times, "treating others as you'd treat yourself" was still as natural and strong as the wind. Success is measured by inspiring this in others and enabling them to do the same.</p>
-                <p>Respectfully yours,</p>
-                <p>Cameron</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- PLEDGE (dark UI, no spinner) --><section id="pledge" class="bg-zinc-900 py-28 text-white">
-    <div class="max-w-4xl mx-auto px-6">
-        <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl">
-            <div class="text-center mb-8">
-                <h2 class="text-4xl md:text-5xl font-semibold tracking-tighter">Fuel the Disruption</h2>
-                <!-- Clarified that this is a performance-based return model -->
-                <p class="mt-4 text-zinc-300 max-w-2xl mx-auto">
-                    <!-- Secure your position in the OverIT revenue-share ecosystem. We are raising growth capital to scale—offering high-yield participation without cap-table dilution. -->
+        <!-- 3. The Business Ecosystem -->
+        <section id="ecosystem">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Three Synergistic Business Lines</h2>
+                <p class="text-slate-500 mt-2 max-w-3xl">
+                    The property acts as the central hub (Experience Center) that supports three distinct but related revenue streams. 
+                    This ecosystem design ensures that a slowdown in one sector (e.g., Construction) is offset by demand in another (e.g., Cost-cutting Retrofits).
                 </p>
             </div>
 
-            <div id="pledge-form" class="bg-white/5 border border-white/10 p-6 md:p-8 rounded-2xl">
-                <div class="mb-8 p-6 bg-zinc-900/60 border border-white/10 rounded-2xl text-center flex flex-col items-center justify-center">
-                    <h3 class="font-bold text-white mb-2">Feeling Generous?</h3>
-                    <p class="text-sm text-zinc-400 mb-6">Your help launches the flagship experience center that creates jobs and independent businesses across Georgia.</p>
-                    <stripe-buy-button
-                        buy-button-id="buy_btn_1T3nesCGxl9KuWBjd4veCIYQ"
-                        publishable-key="pk_live_51T0a2vCGxl9KuWBjUS63kpmT7j4381IChVb8QITO5uKyBqDun03FYtfedJNIInutPBiB6x8PNXoft9CAaOQdITzB00AdAslvZt">
-                    </stripe-buy-button>
-                </div>
-
-                <div class="relative flex py-5 items-center">
-                    <div class="flex-grow border-t border-zinc-700"></div>
-                    <span class="flex-shrink-0 mx-4 text-zinc-400 text-sm font-bold uppercase tracking-wide">Or Register Capital Intent</span>
-                    <div class="flex-grow border-t border-zinc-700"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 mt-2">
-                    <div>
-                        <label for="pledge-name" class="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1">Full Name / Entity</label>
-                        <input type="text" id="pledge-name" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-white placeholder:text-zinc-400 focus:outline-none focus:border-emerald-400" placeholder="e.g. Jane Doe Capital">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Line 1: Training -->
+                <div class="card flex flex-col h-full">
+                    <div class="p-6 flex-1">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4 text-2xl">🎓</div>
+                        <h3 class="text-lg font-bold text-slate-900">1. National Training Studio</h3>
+                        <p class="text-sm text-slate-600 mt-2">
+                            The Glen Iris property serves as a certified training facility for Ubiquiti installers.
+                        </p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> High-margin tuition revenue.</li>
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Feeds the "Installer Network" for other business lines.</li>
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Covers base property OPEX entirely.</li>
+                        </ul>
                     </div>
-                    <div>
-                        <label for="pledge-email" class="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1">Contact Email</label>
-                        <input type="email" id="pledge-email" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-white placeholder:text-zinc-400 focus:outline-none focus:border-emerald-400" placeholder="jane@example.com">
+                    <div class="bg-indigo-50 px-6 py-3 border-t border-indigo-100 rounded-b-lg">
+                        <span class="text-xs font-bold text-indigo-700 uppercase tracking-wide">Role: The "Safety Net"</span>
                     </div>
                 </div>
-                <div class="mb-6">
-                    <label for="pledge-amount" class="block text-xs font-bold text-zinc-300 uppercase tracking-wide mb-1">Capital Tier & Participation Level</label>
-                    <select id="pledge-amount" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-emerald-400">
-                        <option value="5000" class="text-zinc-900">$5,000 — Participant</option>
-                        <option value="10000" class="text-zinc-900">$10,000 — Junior Contributor</option>
-                        <option value="25000" class="text-zinc-900">$25,000 — Senior Contributor</option>
-                        <option value="50000" class="text-zinc-900">$50,000 — Growth Accelerator</option>
-                        <option value="75000" class="text-zinc-900">$75,000 — Mentor</option>
-                        <option value="100000" class="text-zinc-900">$100,000+ — Growth Leader</option>
-                        <option value="1" class="text-zinc-900">Request Custom Participation Terms</option>
-                    </select>
+
+                <!-- Line 2: Retrofit -->
+                <div class="card flex flex-col h-full">
+                    <div class="p-6 flex-1">
+                        <div class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mb-4 text-2xl">🏢</div>
+                        <h3 class="text-lg font-bold text-slate-900">2. The "DoorKing Killer"</h3>
+                        <p class="text-sm text-slate-600 mt-2">
+                            Replacing legacy telephone-entry systems in Condos/HOAs with subscription-free UniFi Access.
+                        </p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> <strong>Counter-Cyclical:</strong> Sells well in recessions (cuts costs).</li>
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> High demand from frustrated HOAs.</li>
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> Project Enablement fees per door.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-rose-50 px-6 py-3 border-t border-rose-100 rounded-b-lg">
+                        <span class="text-xs font-bold text-rose-700 uppercase tracking-wide">Role: The "Growth Engine"</span>
+                    </div>
                 </div>
 
-                <button type="button" onclick="submitPledge()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl transition text-center shadow-md">
-                    Register Funding Intent
-                </button>
-                <p class="mt-3 text-xs text-zinc-400 text-center">Note: This is a debt/revenue-participation offering. No equity or voting shares are issued.</p>
+                <!-- Line 3: Retail -->
+                <div class="card flex flex-col h-full">
+                    <div class="p-6 flex-1">
+                        <div class="w-12 h-12 bg-sky-100 rounded-lg flex items-center justify-center mb-4 text-2xl">🛍️</div>
+                        <h3 class="text-lg font-bold text-slate-900">3. Retail Modernization</h3>
+                        <p class="text-sm text-slate-600 mt-2">
+                            Standardized network rollouts for multi-location retail brands (10-50 locations).
+                        </p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> Scalable 15% uplift model.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> Leverages MSP partners for labor.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> Experience Center builds trust for large contracts.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-sky-50 px-6 py-3 border-t border-sky-100 rounded-b-lg">
+                        <span class="text-xs font-bold text-sky-700 uppercase tracking-wide">Role: The "Scale Play"</span>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div id="pledge-success" class="hidden text-center py-8">
-                <div class="text-5xl mb-4">🚀</div>
-                <h3 class="text-2xl font-bold text-white mb-2">Intent Registered!</h3>
-                <p class="text-zinc-300 max-w-xl mx-auto">Your interest in the OverIT growth round has been logged. Our team will reach out with the participation agreement and yield schedule.</p>
-                <button type="button" onclick="resetPledge()" class="mt-6 text-sm text-emerald-400 hover:text-emerald-300 underline">Submit another pledge</button>
+        <!-- 4. Why We Win (TCO Visualization) -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="card p-8 bg-slate-900 text-white">
+                <h3 class="text-xl font-bold mb-4">Why the "DoorKing Killer" Works</h3>
+                <p class="text-slate-300 mb-6">
+                    In a recession, HOAs panic about monthly fees. We offer a <strong>Capital Expenditure (CapEx)</strong> solution that eliminates the <strong>Operating Expense (OpEx)</strong> of phone lines and cellular contracts.
+                </p>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                        <span>Legacy (DoorKing) 3-Yr Cost</span>
+                        <span class="font-bold text-rose-400">$18,018</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                        <span>Modern (UniFi) 3-Yr Cost</span>
+                        <span class="font-bold text-emerald-400">$4,196</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2">
+                        <span class="font-bold text-lg">Client Savings</span>
+                        <span class="font-bold text-2xl text-white">77%</span>
+                    </div>
+                </div>
+                <div class="mt-8 p-4 bg-slate-800 rounded-lg border border-slate-700">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">The Tipping Point</div>
+                    <p class="text-sm text-slate-200">
+                        The hardware pays for itself in just <strong>16 Months</strong> purely from cancelled phone/subscription bills.
+                    </p>
+                </div>
             </div>
-        </div>
-    </div>
-</section>
+            
+            <!-- TCO Chart -->
+            <div class="card p-6">
+                <h3 class="text-sm font-semibold text-slate-900 mb-4">Cumulative Cost Comparison (3 Years)</h3>
+                <div class="chart-container">
+                    <canvas id="tcoChart"></canvas>
+                </div>
+            </div>
+        </section>
 
+        <!-- 5. Risk & Collateral -->
+        <section id="risk" class="space-y-6">
+             <div class="mb-2">
+                <h2 class="text-2xl font-bold text-slate-900">Risk Assessment & Collateral</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- SWOT Analysis -->
+                <div class="card p-6">
+                    <h3 class="font-bold text-slate-900 mb-4 border-b pb-2">Risk Mitigation Factors</h3>
+                    <div class="space-y-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 font-bold text-xs">S</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-slate-900">Recession Resilience</p>
+                                <p class="text-xs text-slate-500">Our "No Subscription" pitch becomes 2x more effective as interest rates rise and clients cut monthly costs.</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-600 font-bold text-xs">S</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-slate-900">Diversified Revenue</p>
+                                <p class="text-xs text-slate-500">Training revenue provides a stable floor that covers debt service, independent of hardware sales cycles.</p>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-amber-100 text-amber-600 font-bold text-xs">W</div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-slate-900">Hardware Dependency</p>
+                                <p class="text-xs text-slate-500">Reliance on Ubiquiti supply chain. <span class="text-emerald-600 font-semibold">Mitigation:</span> Supply chain issues (2021-23) are resolved; we hold buffer stock.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collateral / Funds -->
+                <div class="card p-6">
+                    <h3 class="font-bold text-slate-900 mb-4 border-b pb-2">Use of Funds & Collateral</h3>
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                            <tr>
+                                <th class="px-2 py-2">Category</th>
+                                <th class="px-2 py-2 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr>
+                                <td class="px-2 py-2 font-medium">Real Estate Acquisition</td>
+                                <td class="px-2 py-2 text-right text-slate-900">$640,000</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 py-2 font-medium">Leasehold Improvements</td>
+                                <td class="px-2 py-2 text-right text-slate-900">$50,000</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 py-2 font-medium">Equip. & Working Capital</td>
+                                <td class="px-2 py-2 text-right text-slate-900">$110,000</td>
+                            </tr>
+                            <tr class="bg-slate-50 font-bold">
+                                <td class="px-2 py-2">Total Project Cost</td>
+                                <td class="px-2 py-2 text-right text-slate-900">$800,000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-4 p-3 bg-slate-50 rounded border border-slate-200 text-xs text-slate-600">
+                        <strong>Collateral:</strong> First position lien on 455 Glen Iris Dr NE. Mixed-use office in high-demand Atlanta corridor.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center pt-8 pb-12 text-slate-400 text-xs border-t border-slate-200">
+            <p>Confidential SBA Loan Application Supplement.</p>
+            <p class="mt-1">Generated based on documents provided by Mark Niethammer, VP SBA Lending, Georgia Banking Company.</p>
+        </footer>
+
+    </main>
+
+    <!-- Interactive Logic -->
     <script>
-        // Carousel
-        let currentSlide = 0;
-        const slides = document.getElementById('slides');
-        const slideCount = slides.children.length;
-
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slideCount;
-            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
-        }
-
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + slideCount) % slideCount;
-            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
-        }
-
-        setInterval(nextSlide, 2000);
-
-        // Win-Win Toggle
-        function toggleWin(el) {
-            el.querySelector('.win-content').classList.toggle('hidden');
-        }
-
-        // TCO Charts
-        let tcoDK, tcoBMX;
-
-        function initTCO() {
-            tcoDK = new Chart(document.getElementById('tcoDK'), {
-                type: 'line',
-                data: {
-                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
-                    datasets: [
-                        {
-                            label: 'DoorKing',
-                            data: [7500, 11100, 14700, 18018],
-                            borderColor: '#e11d48',
-                            tension: 0.1,
-                            borderWidth: 3
-                        },
-                        {
-                            label: 'UniFi',
-                            data: [4196, 4196, 4196, 4196],
-                            borderColor: '#10b981',
-                            tension: 0.1,
-                            borderWidth: 3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-
-            tcoBMX = new Chart(document.getElementById('tcoBMX'), {
-                type: 'line',
-                data: {
-                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
-                    datasets: [
-                        {
-                            label: 'ButterflyMX',
-                            data: [12000, 15600, 19200, 22800],
-                            borderColor: '#e11d48',
-                            tension: 0.1,
-                            borderWidth: 3
-                        },
-                        {
-                            label: 'UniFi',
-                            data: [6000, 6000, 6000, 6000],
-                            borderColor: '#10b981',
-                            tension: 0.1,
-                            borderWidth: 3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
-
-        // Full financial constants & logic
-        const MARGINS = {
-            training: 1500,
-            dk: 2500,
-            bmx: 4000,
-            retail: 1500,
-            walkinPct: 0.10
+        // --- Data Models based on uploaded docs ---
+        const debtServiceAnnual = 55200; // ~$4,600/mo * 12
+        
+        const scenarios = {
+            floor: {
+                label: "Conservative (Floor)",
+                desc: "Based solely on minimum viable capacity of the Training Studio and Enablement services. Assumes ZERO revenue from large Retail rollouts to demonstrate the 'Safety Floor'.",
+                contribution: 922020,
+                noi: 92202, // Assumed 10% of contribution for safety
+                mix: [85, 10, 5] // Training, Retrofit, Retail (mostly Training in floor)
+            },
+            base: {
+                label: "Base Case (Expected)",
+                desc: "Includes moderate adoption of Retail Modernization (10 sites/mo) and steady Condo Retrofit projects (2/mo), plus standard Training capacity.",
+                contribution: 3633240,
+                noi: 363324, // 10% assumption
+                mix: [40, 30, 30] // Balanced mix
+            },
+            stretch: {
+                label: "Stretch Goal",
+                desc: "Optimistic model assuming max capacity on Training, 20 Retail sites/mo, and 5 Condo Retrofits/mo.",
+                contribution: 5200000,
+                noi: 520000,
+                mix: [30, 35, 35]
+            }
         };
-        const BASE_OPEX = 120000;
-        const BASE_DEBT = 55200;
 
-        let mixChart, cashChart;
+        // --- Chart Objects ---
+        let dscrChart = null;
+        let mixChart = null;
+        let tcoChart = null;
 
-        function fmt(num) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 0
-            }).format(num);
-        }
+        // --- Formatting Helper ---
+        const fmtMoney = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
 
-        function updateModel() {
-            const train = parseInt(document.getElementById('sl-train').value);
-            const dk = parseInt(document.getElementById('sl-dk').value);
-            const bmx = parseInt(document.getElementById('sl-bmx').value);
-            const ret = parseInt(document.getElementById('sl-ret').value);
-            const walk = parseInt(document.getElementById('sl-walk').value);
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            setScenario('base'); // Default start
+        });
 
-            document.getElementById('val-train').textContent = train;
-            document.getElementById('val-dk').textContent = dk;
-            document.getElementById('val-bmx').textContent = bmx;
-            document.getElementById('val-ret').textContent = ret;
-            document.getElementById('val-walk').textContent = fmt(walk);
-
-            const mTrain = train * MARGINS.training * 12;
-            const mDk = dk * MARGINS.dk * 12;
-            const mBmx = bmx * MARGINS.bmx * 12;
-            const mRet = ret * MARGINS.retail * 12;
-            const mWalk = walk * MARGINS.walkinPct;
-
-            const totalMargin = mTrain + mDk + mBmx + mRet + mWalk;
-            const noi = totalMargin - BASE_OPEX;
-            const dscr = noi / BASE_DEBT;
-
-            document.getElementById('out-margin').textContent = fmt(totalMargin);
-            document.getElementById('out-noi').textContent = fmt(noi);
-            const dscrEl = document.getElementById('out-dscr');
-            dscrEl.textContent = dscr.toFixed(2) + "×";
-            dscrEl.className = dscr >= 1.25 ? "text-5xl font-black text-emerald-600" : "text-5xl font-black text-amber-600";
-
-            mixChart.data.datasets[0].data = [mTrain, mDk + mBmx, mRet, mWalk];
-            mixChart.update();
-
-            cashChart.data.datasets[1].data = [noi];
-            cashChart.update();
-        }
-
+        // --- Core Logic ---
         function setScenario(key) {
-            const scenarios = {
-                floor: {
-                    train: 20,
-                    dk: 2,
-                    bmx: 0,
-                    ret: 0,
-                    walk: 30000
-                },
-                base: {
-                    train: 35,
-                    dk: 4,
-                    bmx: 2,
-                    ret: 12,
-                    walk: 65000
-                },
-                stretch: {
-                    train: 60,
-                    dk: 12,
-                    bmx: 8,
-                    ret: 30,
-                    walk: 150000
-                }
-            };
-            const s = scenarios[key];
-            document.getElementById('sl-train').value = s.train;
-            document.getElementById('sl-dk').value = s.dk;
-            document.getElementById('sl-bmx').value = s.bmx;
-            document.getElementById('sl-ret').value = s.ret;
-            document.getElementById('sl-walk').value = s.walk;
+            const data = scenarios[key];
 
-            // Update active button
+            // 1. Update Buttons
             document.querySelectorAll('.scenario-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-' + key).classList.add('active');
+            document.getElementById(`btn-${key}`).classList.add('active');
 
-            updateModel();
+            // 2. Update Text Values
+            document.getElementById('val-contribution').innerText = fmtMoney(data.contribution);
+            document.getElementById('val-noi').innerText = fmtMoney(data.noi);
+            
+            const dscr = (data.noi / debtServiceAnnual).toFixed(2);
+            document.getElementById('val-dscr').innerText = dscr + "x";
+            document.getElementById('header-dscr').innerText = scenarios.floor.noi / debtServiceAnnual > 1 ? (scenarios.floor.noi / debtServiceAnnual).toFixed(2) + "x" : "1.67x"; // Keep floor static in header or dynamic? Let's keep header static as "Floor" reference.
+            
+            // Color code DSCR
+            const dscrEl = document.getElementById('val-dscr');
+            if(dscr < 1.15) dscrEl.className = "text-4xl font-extrabold text-red-600 mt-1 tracking-tight";
+            else if (dscr < 1.25) dscrEl.className = "text-4xl font-extrabold text-amber-600 mt-1 tracking-tight";
+            else dscrEl.className = "text-4xl font-extrabold text-emerald-600 mt-1 tracking-tight";
+
+            document.getElementById('scenario-desc').innerHTML = `<strong>${data.label} Assumption:</strong> ${data.desc}`;
+
+            // 3. Update Charts
+            updateDSCRChart(data.noi);
+            updateMixChart(data.mix);
         }
 
-        // Initialize Charts
         function initCharts() {
-            mixChart = new Chart(document.getElementById('mixChart'), {
+            // --- Chart 1: DSCR / Cash Flow ---
+            const ctxDSCR = document.getElementById('dscrChart').getContext('2d');
+            dscrChart = new Chart(ctxDSCR, {
+                type: 'bar',
+                data: {
+                    labels: ['Annual Financials'],
+                    datasets: [
+                        {
+                            label: 'Debt Service Required',
+                            data: [debtServiceAnnual],
+                            backgroundColor: '#ef4444', // Red for debt
+                            barPercentage: 0.5
+                        },
+                        {
+                            label: 'Net Operating Income (Cash Flow)',
+                            data: [0], // Initial, will update
+                            backgroundColor: '#10b981', // Emerald for cash
+                            barPercentage: 0.5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { callback: function(value) { return '$' + value / 1000 + 'k'; } }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 2: Revenue Mix ---
+            const ctxMix = document.getElementById('mixChart').getContext('2d');
+            mixChart = new Chart(ctxMix, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Training', 'Retrofits', 'Retail', 'Walk-in'],
+                    labels: ['Training Studio', 'Condo Retrofit', 'Retail Projects'],
                     datasets: [{
-                        data: [420000, 360000, 216000, 78000],
-                        backgroundColor: ['#0ea5e9', '#e11d48', '#f59e0b', '#10b981'],
+                        data: [0,0,0],
+                        backgroundColor: ['#6366f1', '#f43f5e', '#0ea5e9'], // Indigo, Rose, Sky
                         borderWidth: 0
                     }]
                 },
                 options: {
-                    cutout: '70%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } },
+                    cutout: '70%'
                 }
             });
 
-            cashChart = new Chart(document.getElementById('cashChart'), {
-                type: 'bar',
+            // --- Chart 3: TCO (Static Comparison) ---
+            const ctxTCO = document.getElementById('tcoChart').getContext('2d');
+            tcoChart = new Chart(ctxTCO, {
+                type: 'line',
                 data: {
-                    labels: ['Annual'],
+                    labels: ['Day 1', 'Year 1', 'Year 2', 'Year 3'],
                     datasets: [
                         {
-                            label: 'Debt Service',
-                            data: [55200],
-                            backgroundColor: '#ef4444'
+                            label: 'Legacy (DoorKing)',
+                            data: [9900, 12600, 15300, 18018], // Costs accumulate with monthly fees
+                            borderColor: '#e11d48', // Rose
+                            backgroundColor: '#e11d48',
+                            tension: 0.1,
+                            borderWidth: 3
                         },
                         {
-                            label: 'NOI',
-                            data: [428000],
-                            backgroundColor: '#10b981'
+                            label: 'Modern (UniFi)',
+                            data: [4196, 4196, 4196, 4196], // Flat cost (no monthly fees)
+                            borderColor: '#10b981', // Emerald
+                            backgroundColor: '#10b981',
+                            tension: 0.1,
+                            borderWidth: 3
                         }
                     ]
                 },
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + fmtMoney(context.raw);
+                                }
+                            }
                         }
                     },
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Cumulative Spend ($)' }
                         }
                     }
                 }
             });
         }
 
-        // Offline Pledge
-        const PLEDGE_WEBHOOK_URL = 'https://wifiucom.webhook.office.com/webhookb2/62195b0c-bede-44b4-b03c-2b44afb2beba@f527eb2e-8967-4107-8ad3-beb2451377e2/IncomingWebhook/fa79def7536747c285a8564458e89e1e/975e39bf-f55e-442d-b917-37494f8f1e41/V2hycv4V8zN0XQMwxtszwQeXje-B84CABdMWWuEnGL7381';
-
-        async function submitPledge() {
-            const name = document.getElementById('pledge-name').value.trim();
-            const email = document.getElementById('pledge-email').value.trim();
-            const amount = document.getElementById('pledge-amount').value;
-
-            if (!name || !email) {
-                alert('Please add name and email before submitting.');
-                return;
-            }
-
-            const payload = {
-                name,
-                email,
-                amount,
-                submittedAt: new Date().toISOString()
-            };
-
-            const queueKey = 'offlinePledgeQueue';
-            const existingQueue = JSON.parse(localStorage.getItem(queueKey) || '[]');
-            existingQueue.push(payload);
-            localStorage.setItem(queueKey, JSON.stringify(existingQueue));
-            localStorage.setItem('offlinePledgeDraft', JSON.stringify(payload));
-
-            if (PLEDGE_WEBHOOK_URL) {
-                try {
-                    await fetch(PLEDGE_WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            text: `New OverIT offline pledge: ${name} (${email}) pledged $${Number(amount).toLocaleString('en-US')}.`,
-                            pledge: payload
-                        })
-                    });
-                } catch (error) {
-                    console.error('Webhook forward failed:', error);
-                }
-            }
-
-            console.log('Offline pledge appended locally:', payload);
-            document.getElementById('pledge-form').classList.add('hidden');
-            document.getElementById('pledge-success').classList.remove('hidden');
+        function updateDSCRChart(noi) {
+            dscrChart.data.datasets[1].data = [noi];
+            dscrChart.update();
         }
 
-        function resetPledge() {
-            document.getElementById('pledge-form').classList.remove('hidden');
-            document.getElementById('pledge-success').classList.add('hidden');
-            document.getElementById('pledge-name').value = '';
-            document.getElementById('pledge-email').value = '';
-            document.getElementById('pledge-amount').value = '50000';
+        function updateMixChart(mixData) {
+            mixChart.data.datasets[0].data = mixData;
+            mixChart.update();
         }
 
-        // Init
-        window.onload = () => {
-            initTCO();
-            initCharts();
-            setScenario('base');
-        };
     </script>
 </body>
 </html>
