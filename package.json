@@ -40,6 +40,14 @@
 		"vite-tsconfig-paths": "5.1.4",
 		"wrangler": "^3.114.17"
 	},
+	"overrides": {
+		"ajv": "^6.14.0",
+		"diff": "^5.2.2",
+		"estree-util-value-to-estree": "^3.3.3",
+		"minimatch": "^9.0.7",
+		"minimatch@3": "^3.1.4",
+		"tar": "^7.5.9"
+	},
 	"engines": {
 		"node": ">=20.0.0"
 	},
