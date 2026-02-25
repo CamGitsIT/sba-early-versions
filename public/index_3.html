@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OverIT - SBA Loan Commercial Risk Assessment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 100%; 
+            margin: 0 auto; 
+            height: 280px; 
+            max-height: 350px; 
+        }
+        .card { 
+            background: white; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Custom Sliders */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
+            background: #0ea5e9; cursor: pointer; margin-top: -8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; cursor: pointer; background: #e2e8f0; border-radius: 3px;
+        }
+        input[type=range]:focus { outline: none; }
+        
+        .loader {
+            border: 3px solid #f3f3f3; border-top: 3px solid #0ea5e9; border-radius: 50%;
+            width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Image Overlays */
+        .img-overlay {
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0) 100%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold tracking-tight text-slate-900">Over<span class="text-sky-600">IT</span></span>
+                    <span class="ml-4 px-3 py-1 rounded-full bg-slate-100 text-xs font-medium text-slate-500 hidden sm:inline-block">SBA 7(a) Prospectus</span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-medium text-slate-600">
+                    <a href="#executive" class="hover:text-sky-600 transition">Summary</a>
+                    <a href="#ecosystem" class="hover:text-sky-600 transition">The 4 Pillars</a>
+                    <a href="#impact" class="hover:text-sky-600 transition">Job Creation</a>
+                    <a href="#financials" class="hover:text-sky-600 transition">Dynamic Model</a>
+                </div>
+                <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition">Print Deck</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <!-- 1. Executive Summary -->
+        <section id="executive" class="space-y-6">
+            <div class="text-center max-w-4xl mx-auto">
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">The "No-OpEx" Disruption Model</h1>
+                <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                    OverIT is acquiring <strong>455 Glen Iris Dr NE</strong> to launch an immersive "Experience Center" that powers four interlocking business lines. 
+                    We displace legacy access control vendors by eliminating monthly fees, while simultaneously creating a pipeline of certified IT talent.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+                <div class="card p-6 border-t-4 border-slate-800">
+                    <div class="text-xs font-semibold text-slate-400 uppercase">Loan Request</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">$640,000</div>
+                    <div class="text-sm text-slate-500 mt-1">Acquisition & Imp.</div>
+                </div>
+                <div class="card p-6 border-t-4 border-slate-800">
+                    <div class="text-xs font-semibold text-slate-400 uppercase">Property Value</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">$800,000</div>
+                    <div class="text-sm text-slate-500 mt-1">Owner-Occupied</div>
+                </div>
+                <div class="card p-6 border-t-4 border-sky-500 bg-sky-50">
+                    <div class="text-xs font-semibold text-sky-600 uppercase">Shared OpEx Advantage</div>
+                    <div class="text-xl font-bold text-sky-700 mt-1 leading-tight">4 Lines of Business</div>
+                    <div class="text-sm text-sky-600 mt-1">Under 1 facility overhead</div>
+                </div>
+                <div class="card p-6 border-t-4 border-emerald-500 bg-emerald-50">
+                    <div class="text-xs font-semibold text-emerald-600 uppercase">Min DSCR (Floor)</div>
+                    <div class="text-3xl font-bold text-emerald-700 mt-1">2.61x</div>
+                    <div class="text-sm text-emerald-600 mt-1">Cash flow to debt</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. The 4 Business Pillars -->
+        <section id="ecosystem" class="space-y-8">
+            <div class="mb-2 border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">The OverIT Ecosystem: Four Synergistic Pillars</h2>
+                <p class="text-slate-500 mt-2 max-w-3xl">
+                    By combining training, retail, and B2B deployment in one flagship facility, we drive high customer acquisition at near-zero marginal overhead. 
+                    The initial store loadout is fully subsidized by UniFi Corporate.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Pillar 1 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=600" alt="Retail Experience" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4">
+                            <h3 class="text-white font-bold text-lg">1. Zero-Inventory Retail</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">
+                            Visitors experience the full UniFi/UISP ecosystem hands-on. We hold <strong>zero physical inventory</strong>. 
+                        </p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> 10% commission on drop-shipped orders.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> Corporate gifts initial display hardware.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> Zero logistical or shrinkage risk.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=600" alt="Access Control" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4">
+                            <h3 class="text-white font-bold text-lg">2. Multi-Family Retrofit</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">
+                            The "DoorKing & ButterflyMX Killer". Replacing legacy entry systems to eliminate monthly OpEx for HOAs.
+                        </p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> Cuts client costs by up to 77%.</li>
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> Counter-cyclical (sells better in downturns).</li>
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> High-margin design/enablement fees.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600" alt="Training Center" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4">
+                            <h3 class="text-white font-bold text-lg">3. National Training</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">
+                            Certified in-person and VILT training for IT professionals utilizing the Experience Center infrastructure.
+                        </p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> High-margin tuition revenue.</li>
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Covers base facility debt service alone.</li>
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Builds the alumni installation network.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=600" alt="Retail Modernization" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4">
+                            <h3 class="text-white font-bold text-lg">4. Retail Modernization</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">
+                            Standardized network & security rollouts for multi-location retail brands (10-50 locations).
+                        </p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Highly scalable 15% uplift model.</li>
+                            <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Leverages alumni network for labor.</li>
+                            <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Experience center closes enterprise deals.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Why We Win: TCO Disruption -->
+        <section class="space-y-6">
+            <div class="mb-2 border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">Market Disruption: Eliminating OpEx</h2>
+                <p class="text-slate-500 mt-2 max-w-3xl">
+                    We target two distinct legacy markets: Outdated analog systems (DoorKing) and expensive, VC-funded subscription platforms (ButterflyMX). 
+                    Our CapEx-only model guarantees ROI within months.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- DoorKing Comparison -->
+                <div class="card p-6 border-t-4 border-slate-700">
+                    <h3 class="font-bold text-slate-900 mb-2">Low/Mid-Market: The DoorKing Killer</h3>
+                    <p class="text-sm text-slate-600 mb-4">Eliminates dedicated telephone lines and cellular adapters for standard HOAs.</p>
+                    <div class="chart-container">
+                        <canvas id="tcoDKChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-slate-50 rounded text-center border border-slate-200">
+                        <span class="block text-xs font-bold text-slate-500 uppercase">3-Year Client Savings</span>
+                        <span class="text-2xl font-black text-emerald-600">77% Savings</span>
+                    </div>
+                </div>
+
+                <!-- ButterflyMX Comparison -->
+                <div class="card p-6 border-t-4 border-slate-700">
+                    <h3 class="font-bold text-slate-900 mb-2">Luxury Market: The ButterflyMX Disruptor</h3>
+                    <p class="text-sm text-slate-600 mb-4">Replaces exorbitant mandatory software subscriptions ($3k+/yr) with local, free management.</p>
+                    <div class="chart-container">
+                        <canvas id="tcoBMXChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-slate-50 rounded text-center border border-slate-200">
+                        <span class="block text-xs font-bold text-slate-500 uppercase">3-Year Client Savings</span>
+                        <span class="text-2xl font-black text-emerald-600">$16,800+ Retained</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. SBA Job Creation & Impact -->
+        <section id="impact" class="card p-8 bg-slate-900 text-white relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 opacity-10">
+                <span class="text-[200px]">🎓</span>
+            </div>
+            <div class="relative z-10">
+                <div class="inline-block px-3 py-1 bg-sky-500/20 text-sky-400 font-semibold text-xs rounded-full uppercase tracking-wide mb-4 border border-sky-500/30">
+                    SBA Community Impact
+                </div>
+                <h2 class="text-3xl font-bold mb-4">Creating the Next IT Workforce</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+                    <div class="lg:col-span-2 space-y-4 text-slate-300">
+                        <p>
+                            Since 2012, Ubiquiti Academy's certification program has rapidly expanded, overseeing the training of more than <strong>50,000 students worldwide</strong>. OverIT is bringing this engine to the local community.
+                        </p>
+                        <p>
+                            <strong>The OverIT Multiplier Effect:</strong> We explicitly <em>do not</em> employ a massive army of W-2 installers. Instead, we train and certify professionals, and then feed our sold retrofit and retail projects directly to our Alumni network.
+                        </p>
+                        <p class="font-medium text-emerald-400">
+                            By approving this loan, the SBA is not just funding a building; it is funding an incubator that creates independent contractors and tax-contributing small businesses across the region.
+                        </p>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-white mb-3 text-sm uppercase tracking-wider">Certifications Granted</h4>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-center">✨ <span class="ml-2">UniFi Full Stack Pro (UFSP)</span></li>
+                            <li class="flex items-center">📡 <span class="ml-2">UniFi Wireless Admin (UWA)</span></li>
+                            <li class="flex items-center">🔒 <span class="ml-2">UniFi Security Admin (URSCA)</span></li>
+                            <li class="flex items-center">🌐 <span class="ml-2">UISP Broadband Specialist</span></li>
+                            <li class="flex items-center">💻 <span class="ml-2">UniFi Network Pro (UNP)</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. DYNAMIC FINANCIAL MODELER -->
+        <section id="financials" class="space-y-6">
+            <div class="mb-2 border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">Interactive Repayment Modeler</h2>
+                <p class="text-slate-500 mt-2 max-w-3xl">
+                    Adjust the operational levers below to see how incremental sales across the four pillars compound to affect the bottom line. 
+                    Calculations automatically factor in shared facility OpEx.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Controls Panel -->
+                <div class="lg:col-span-4 space-y-6 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg text-slate-900">Revenue Levers</h3>
+                        <button onclick="resetSliders()" class="text-xs text-sky-600 hover:text-sky-800 font-medium">Reset to Base</button>
+                    </div>
+
+                    <!-- Sliders -->
+                    <div class="space-y-5">
+                        <!-- Training -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-slate-700">Training Seats (Monthly)</span>
+                                <span id="val-in-train" class="text-slate-500 font-mono">20</span>
+                            </div>
+                            <input type="range" id="sl-train" min="5" max="80" value="20" oninput="updateModel()">
+                        </div>
+                        
+                        <!-- DoorKing -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-slate-700">DoorKing Retrofits (Monthly)</span>
+                                <span id="val-in-dk" class="text-slate-500 font-mono">2</span>
+                            </div>
+                            <input type="range" id="sl-dk" min="0" max="15" value="2" oninput="updateModel()">
+                        </div>
+
+                        <!-- ButterflyMX -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-slate-700">ButterflyMX Retrofits (Monthly)</span>
+                                <span id="val-in-bmx" class="text-slate-500 font-mono">1</span>
+                            </div>
+                            <input type="range" id="sl-bmx" min="0" max="10" value="1" oninput="updateModel()">
+                        </div>
+
+                        <!-- Retail Rollouts -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-slate-700">Retail Network Sites (Monthly)</span>
+                                <span id="val-in-ret" class="text-slate-500 font-mono">10</span>
+                            </div>
+                            <input type="range" id="sl-ret" min="0" max="40" value="10" oninput="updateModel()">
+                        </div>
+
+                        <!-- Walk-in Retail -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-slate-700">Store Walk-in Vol. ($/Month)</span>
+                                <span id="val-in-walk" class="text-slate-500 font-mono">$50k</span>
+                            </div>
+                            <input type="range" id="sl-walk" min="0" max="250000" step="5000" value="50000" oninput="updateModel()">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-5 mt-5">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="font-bold text-slate-900">Number of Experience Centers</span>
+                            <span id="val-in-centers" class="text-slate-900 font-bold font-mono">1</span>
+                        </div>
+                        <input type="range" id="sl-centers" min="1" max="5" value="1" oninput="updateModel()" class="accent-slate-900">
+                        <p class="text-xs text-slate-500 mt-2 leading-tight">
+                            Center 1 includes the $55.2k debt service. Centers 2+ add $150k/yr in OpEx (Lease) to test scalability.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Dashboard Panel -->
+                <div class="lg:col-span-8 space-y-6">
+                    <!-- Top Metric Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="card p-5 border-l-4 border-slate-300">
+                            <div class="text-xs font-semibold text-slate-400 uppercase">Annual Gross Margin</div>
+                            <div class="text-2xl font-bold text-slate-900 mt-1" id="out-margin">$0</div>
+                            <div class="text-xs text-slate-500 mt-1">From all selected sources</div>
+                        </div>
+                        <div class="card p-5 border-l-4 border-slate-300">
+                            <div class="text-xs font-semibold text-slate-400 uppercase">Estimated NOI</div>
+                            <div class="text-2xl font-bold text-slate-900 mt-1" id="out-noi">$0</div>
+                            <div class="text-xs text-slate-500 mt-1">Margin minus Facility OpEx</div>
+                        </div>
+                        <div class="card p-5 border-l-4 border-emerald-500 bg-emerald-50" id="dscr-card">
+                            <div class="text-xs font-semibold text-emerald-700 uppercase">Debt Svc Coverage (DSCR)</div>
+                            <div class="text-3xl font-black text-emerald-700 mt-1" id="out-dscr">0.00x</div>
+                            <div class="text-xs text-emerald-600 mt-1" id="out-debt-text">Req. Debt: $55.2k</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="card p-5">
+                            <h3 class="text-sm font-semibold text-slate-900 mb-4">Revenue Mix Breakdown</h3>
+                            <div class="chart-container" style="height: 220px;">
+                                <canvas id="dynMixChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card p-5">
+                            <h3 class="text-sm font-semibold text-slate-900 mb-4">NOI vs. Debt Service Buffer</h3>
+                            <div class="chart-container" style="height: 220px;">
+                                <canvas id="dynCashChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ✨ AI Underwriter Assistant Section -->
+        <section class="card p-8 bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden shadow-xl">
+            <div class="absolute top-0 right-0 -mt-16 -mr-16 text-slate-700 opacity-20 text-[200px] leading-none">✨</div>
+            <div class="relative z-10">
+                <div class="flex items-center mb-6">
+                    <span class="text-3xl mr-3">🤖</span>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">AI Underwriter Assistant</h2>
+                        <p class="text-slate-300 text-sm mt-1">Generates insights based on the <strong>current slider configurations</strong> above.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-800/80 p-5 rounded-lg border border-slate-600 backdrop-blur">
+                        <h3 class="font-semibold text-amber-400 mb-2">Generate Loan Memo Draft</h3>
+                        <p class="text-sm text-slate-400 mb-4">Automatically draft a formal committee memo summarizing strengths, risks, and a recommendation based on your configured DSCR numbers.</p>
+                        <button id="btn-generate-memo" onclick="generateLoanMemo()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-4 rounded transition flex items-center justify-center">
+                            <span>📝 Draft Memo (Text)</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800/80 p-5 rounded-lg border border-slate-600 backdrop-blur">
+                        <h3 class="font-semibold text-sky-400 mb-2">Executive Audio Briefing</h3>
+                        <p class="text-sm text-slate-400 mb-4">Generate a professional 30-second audio summary of the deal's viability based on your specific slider settings.</p>
+                        <button id="btn-play-audio" onclick="playAudioBriefing()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center">
+                            <span>🔊 Synthesize Briefing (Audio)</span>
+                        </button>
+                        <audio id="audio-player" class="w-full mt-4 hidden" controls></audio>
+                    </div>
+                </div>
+
+                <div id="memo-output-container" class="mt-6 bg-white rounded-lg p-6 text-slate-800 hidden">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <h3 class="font-bold text-lg">Committee Memo Draft</h3>
+                        <button onclick="document.getElementById('memo-output-container').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">Close</button>
+                    </div>
+                    <div id="memo-content" class="prose text-sm max-w-none text-slate-600"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risk Factors (SWOT Update) -->
+        <section class="card p-8 bg-slate-50 border border-slate-200">
+            <h3 class="font-bold text-slate-900 mb-4 border-b border-slate-300 pb-2">Updated Risk Mitigation</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="text-sm font-bold text-emerald-700 mb-1">Shared OpEx Efficiency</h4>
+                    <p class="text-sm text-slate-600">All four business lines operate from the exact same footprint at 455 Glen Iris. Expanding into Retail or Retrofits adds zero marginal facility cost. Utilities, internet, and base staffing are inherently shared, drastically lowering the breakeven threshold.</p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-amber-700 mb-1">Hardware Supply Chain</h4>
+                    <p class="text-sm text-slate-600">Reliance on Ubiquiti manufacturing. <span class="font-semibold">Mitigation:</span> Supply chain constraints from 2021-2023 have resolved globally. Furthermore, the "Walk-in Retail" line holds zero local inventory (drop-ship only), isolating it entirely from local stocking risks.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- App Logic -->
+    <script>
+        // --- Gemini API Configuration ---
+        const apiKey = ""; 
+
+        async function fetchWithRetry(url, options, maxRetries = 5) {
+            let delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i === maxRetries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
+
+        // --- Financial Constants & State ---
+        const MARGINS = {
+            training: 1500,    // per seat
+            dk: 2500,          // per DoorKing project
+            bmx: 4000,         // per ButterflyMX project
+            retail: 1500,      // per site rollout
+            walkinPct: 0.10    // 10% commission
+        };
+        const BASE_OPEX = 120000;      // Base annual opex per center
+        const BASE_DEBT = 55200;       // Annual debt service (Center 1 only)
+        const EXPANSION_OPEX = 150000; // Annual lease + opex for Center 2+
+
+        let currentMetrics = { noi: 0, dscr: 0, margin: 0, debt: BASE_DEBT };
+
+        // --- Charts ---
+        let dynMixChart, dynCashChart, tcoDKChart, tcoBMXChart;
+        const fmtMoney = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initStaticCharts();
+            initDynamicCharts();
+            updateModel(); // Initialize values
+        });
+
+        // --- Dynamic Model Logic ---
+        function updateModel() {
+            // Read UI Sliders
+            const centers = parseInt(document.getElementById('sl-centers').value);
+            const trainVol = parseInt(document.getElementById('sl-train').value);
+            const dkVol = parseInt(document.getElementById('sl-dk').value);
+            const bmxVol = parseInt(document.getElementById('sl-bmx').value);
+            const retVol = parseInt(document.getElementById('sl-ret').value);
+            const walkVol = parseInt(document.getElementById('sl-walk').value);
+
+            // Update Labels
+            document.getElementById('val-in-centers').innerText = centers;
+            document.getElementById('val-in-train').innerText = trainVol;
+            document.getElementById('val-in-dk').innerText = dkVol;
+            document.getElementById('val-in-bmx').innerText = bmxVol;
+            document.getElementById('val-in-ret').innerText = retVol;
+            document.getElementById('val-in-walk').innerText = fmtMoney(walkVol);
+
+            // Calculate Annual Margins (Multiplied by # of centers)
+            const mTrain = trainVol * MARGINS.training * 12 * centers;
+            const mDk = dkVol * MARGINS.dk * 12 * centers;
+            const mBmx = bmxVol * MARGINS.bmx * 12 * centers;
+            const mRet = retVol * MARGINS.retail * 12 * centers;
+            const mWalk = walkVol * MARGINS.walkinPct * 12 * centers;
+
+            const totalMargin = mTrain + mDk + mBmx + mRet + mWalk;
+            
+            // Calculate Costs based on centers
+            let totalOpex = BASE_OPEX; // Center 1
+            if (centers > 1) {
+                totalOpex += (centers - 1) * EXPANSION_OPEX; // Centers 2+ are leased
+            }
+            
+            const noi = totalMargin - totalOpex;
+            // Debt service stays static because Center 2+ are leased (assumed in Expansion Opex)
+            const dscr = noi / BASE_DEBT;
+
+            // Update State
+            currentMetrics = { noi, dscr, margin: totalMargin, debt: BASE_DEBT, centers };
+
+            // Update UI Outputs
+            document.getElementById('out-margin').innerText = fmtMoney(totalMargin);
+            document.getElementById('out-noi').innerText = fmtMoney(noi);
+            
+            const dscrEl = document.getElementById('out-dscr');
+            const dscrCard = document.getElementById('dscr-card');
+            
+            if (noi < 0) {
+                dscrEl.innerText = "Negative";
+                dscrCard.className = "card p-5 border-l-4 border-red-500 bg-red-50";
+                dscrEl.className = "text-3xl font-black text-red-700 mt-1";
+            } else {
+                dscrEl.innerText = dscr.toFixed(2) + "x";
+                if(dscr < 1.15) {
+                    dscrCard.className = "card p-5 border-l-4 border-amber-500 bg-amber-50";
+                    dscrEl.className = "text-3xl font-black text-amber-700 mt-1";
+                } else {
+                    dscrCard.className = "card p-5 border-l-4 border-emerald-500 bg-emerald-50";
+                    dscrEl.className = "text-3xl font-black text-emerald-700 mt-1";
+                }
+            }
+
+            // Update Charts
+            dynMixChart.data.datasets[0].data = [mTrain, mDk + mBmx, mRet, mWalk];
+            dynMixChart.update();
+
+            dynCashChart.data.datasets[0].data = [BASE_DEBT]; // Red line
+            dynCashChart.data.datasets[1].data = [noi > 0 ? noi : 0]; // Green line
+            dynCashChart.update();
+        }
+
+        function resetSliders() {
+            document.getElementById('sl-centers').value = 1;
+            document.getElementById('sl-train').value = 20;
+            document.getElementById('sl-dk').value = 2;
+            document.getElementById('sl-bmx').value = 1;
+            document.getElementById('sl-ret').value = 10;
+            document.getElementById('sl-walk').value = 50000;
+            updateModel();
+        }
+
+        // --- Chart Initialization ---
+        function initDynamicCharts() {
+            const ctxMix = document.getElementById('dynMixChart').getContext('2d');
+            dynMixChart = new Chart(ctxMix, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Training', 'Multi-Family Retrofits', 'Retail Rollouts', 'Walk-in Store'],
+                    datasets: [{ data: [0,0,0,0], backgroundColor: ['#6366f1', '#f43f5e', '#f59e0b', '#0ea5e9'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } }, cutout: '65%' }
+            });
+
+            const ctxCash = document.getElementById('dynCashChart').getContext('2d');
+            dynCashChart = new Chart(ctxCash, {
+                type: 'bar',
+                data: {
+                    labels: ['Annual Financials'],
+                    datasets: [
+                        { label: 'Debt Service Required', data: [BASE_DEBT], backgroundColor: '#ef4444', barPercentage: 0.6 },
+                        { label: 'Generated Cash Flow (NOI)', data: [0], backgroundColor: '#10b981', barPercentage: 0.6 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function initStaticCharts() {
+            // DoorKing (Low end) TCO
+            const ctxDK = document.getElementById('tcoDKChart').getContext('2d');
+            tcoDKChart = new Chart(ctxDK, {
+                type: 'line',
+                data: {
+                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
+                    datasets: [
+                        { label: 'DoorKing (Tel/Cell)', data: [7500, 11100, 14700, 18018], borderColor: '#64748b', backgroundColor: '#64748b', tension: 0.1, borderWidth: 3 },
+                        { label: 'UniFi Access (No Fees)', data: [4196, 4196, 4196, 4196], borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.1, borderWidth: 3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // ButterflyMX (Luxury) TCO
+            const ctxBMX = document.getElementById('tcoBMXChart').getContext('2d');
+            tcoBMXChart = new Chart(ctxBMX, {
+                type: 'line',
+                data: {
+                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
+                    datasets: [
+                        { label: 'ButterflyMX (Sub)', data: [12000, 15600, 19200, 22800], borderColor: '#e11d48', backgroundColor: '#e11d48', tension: 0.1, borderWidth: 3 },
+                        { label: 'UniFi Access (CapEx)', data: [6000, 6000, 6000, 6000], borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.1, borderWidth: 3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // --- GEMINI API INTEGRATIONS ---
+        async function generateLoanMemo() {
+            const btn = document.getElementById('btn-generate-memo');
+            const originalHtml = btn.innerHTML;
+            const outputContainer = document.getElementById('memo-output-container');
+            const contentDiv = document.getElementById('memo-content');
+            
+            try {
+                btn.innerHTML = '<span class="loader"></span> Generating Memo...';
+                btn.disabled = true;
+                outputContainer.classList.add('hidden');
+
+                const prompt = `
+                    Generate a formal, concise internal commercial loan committee memo for an SBA 7(a) loan.
+                    Context: Borrower: OverIT. Request: $640k real estate. Debt Service: $55,200/yr.
+                    
+                    CURRENT DYNAMIC MODEL METRICS:
+                    - Centers Operating: ${currentMetrics.centers}
+                    - Projected NOI: $${currentMetrics.noi.toLocaleString()}
+                    - Resulting DSCR: ${currentMetrics.dscr.toFixed(2)}x
+                    
+                    Highlight the "Zero-Inventory Drop-ship" retail model and the SBA Job Creation aspect (training/certifying techs via Ubiquiti Academy to act as independent installers).
+                    Format as a formal memo with sections: Deal Overview, Cash Flow & DSCR, SBA Impact, and Recommendation.
+                `;
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    systemInstruction: { parts: [{ text: "You are a senior commercial loan officer. Write professionally, referencing the specific DSCR provided." }] }
+                };
+
+                const response = await fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const generatedText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (generatedText) {
+                    contentDiv.innerHTML = marked.parse(generatedText);
+                    outputContainer.classList.remove('hidden');
+                } else throw new Error("No text generated.");
+
+            } catch (error) {
+                console.error("API Error:", error);
+                alert("Failed to generate memo.");
+            } finally {
+                btn.innerHTML = originalHtml; btn.disabled = false;
+            }
+        }
+
+        async function playAudioBriefing() {
+            const btn = document.getElementById('btn-play-audio');
+            const originalHtml = btn.innerHTML;
+            const audioPlayer = document.getElementById('audio-player');
+            
+            try {
+                btn.innerHTML = '<span class="loader"></span> Synthesizing Audio...';
+                btn.disabled = true;
+
+                let safetyText = currentMetrics.dscr >= 1.25 ? "comfortably exceeds" : "falls below";
+                
+                const prompt = `Say confidently and professionally: 
+                Hello. Based on your current slider configurations for the OverIT loan, the business is projected to generate a Net Operating Income of $${currentMetrics.noi.toLocaleString()}. 
+                This yields a Debt Service Coverage Ratio of ${currentMetrics.dscr.toFixed(2)}, which ${safetyText} standard underwriting requirements. 
+                Notably, this model mitigates risk through shared operational expenses across four business lines, and creates significant SBA community impact by certifying local IT talent.`;
+
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } } } }
+                };
+
+                const response = await fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const base64Data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+                if (base64Data) {
+                    const binaryString = atob(base64Data);
+                    const pcmData = new Int16Array(binaryString.length / 2);
+                    for (let i = 0; i < binaryString.length; i += 2) pcmData[i / 2] = binaryString.charCodeAt(i) | (binaryString.charCodeAt(i + 1) << 8);
+                    
+                    const wavBlob = createWavFile(pcmData, 24000);
+                    audioPlayer.src = URL.createObjectURL(wavBlob);
+                    audioPlayer.classList.remove('hidden');
+                    audioPlayer.play();
+                } else throw new Error("No audio data.");
+
+            } catch (error) {
+                console.error("Audio Error:", error);
+                alert("Failed to generate audio.");
+            } finally {
+                btn.innerHTML = originalHtml; btn.disabled = false;
+            }
+        }
+
+        // PCM to WAV Utility
+        function createWavFile(pcmData, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+            const writeString = (view, offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
+
+            writeString(view, 0, 'RIFF'); view.setUint32(4, 36 + pcmData.length * 2, true);
+            writeString(view, 8, 'WAVE'); writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+            writeString(view, 36, 'data'); view.setUint32(40, pcmData.length * 2, true);
+
+            let offset = 44;
+            for (let i = 0; i < pcmData.length; i++) { view.setInt16(offset, pcmData[i], true); offset += 2; }
+            return new Blob([view], { type: 'audio/wav' });
+        }
+    </script>
+</body>
+</html>

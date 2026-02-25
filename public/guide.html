@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OverIT - SBA Loan Commercial Prospectus</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#152033',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+
+    <style>
+        body { background-color: #f8fafc; color: #1e293b; -webkit-font-smoothing: antialiased; }
+        
+        .card { 
+            background: white; 
+            border-radius: 1rem; 
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); 
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .chart-container { position: relative; width: 100%; margin: 0 auto; height: 280px; }
+        
+        /* Custom Sliders */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
+            background: #ffffff; border: 2px solid #0ea5e9; cursor: pointer; margin-top: -10px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; cursor: pointer; background: #e2e8f0; border-radius: 3px;
+        }
+        input[type=range]:focus { outline: none; }
+        
+        /* Checklist Animations */
+        .check-item { transition: all 0.3s ease; }
+        .check-item.active { color: #0f172a; font-weight: 700; transform: translateX(8px); }
+        .check-item.completed { color: #10b981; }
+        .check-icon { transition: all 0.3s ease; }
+        .check-item.completed .check-icon { background-color: #10b981; border-color: #10b981; color: white; }
+        .check-item.active .check-icon { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2); }
+
+        .img-overlay { background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(15, 23, 42, 0) 100%); }
+        .letter-bg { background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 24px 24px; }
+        
+        .step-content { display: none; animation: fadeIn 0.5s ease; }
+        .step-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Print Optimization */
+        @media print {
+            body { background: white !important; color: black !important; font-size: 12pt; }
+            .print-hidden, nav, #checklist-sidebar, .wizard-controls { display: none !important; }
+            .step-content { display: block !important; opacity: 1 !important; page-break-after: always; }
+            .card { box-shadow: none !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <nav class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded bg-slate-900 flex items-center justify-center text-white font-bold text-xl leading-none">O</div>
+                    <span class="text-xl font-bold tracking-tight text-slate-900">Over<span class="text-sky-600">IT</span></span>
+                    <span class="ml-3 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-500 hidden md:inline-block uppercase tracking-wider">SBA 7(a) Prospectus</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="window.print()" class="text-slate-500 hover:text-slate-900 transition print-hidden flex items-center gap-2 text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <span class="hidden sm:inline">Print Deck</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 flex flex-col md:flex-row gap-12">
+        
+        <aside id="checklist-sidebar" class="w-full md:w-1/3 lg:w-1/4 md:sticky md:top-28 h-fit print-hidden">
+            <div class="card p-6 bg-slate-50/50">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Underwriting Criteria</h3>
+                <ul class="space-y-6">
+                    <li id="nav-step-1" class="check-item active flex items-start gap-4 text-slate-500">
+                        <div class="check-icon w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+                            <svg class="w-3.5 h-3.5 text-transparent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <span class="block text-sm">Borrower Identity & Use of Funds</span>
+                        </div>
+                    </li>
+                    <li id="nav-step-2" class="check-item flex items-start gap-4 text-slate-500">
+                        <div class="check-icon w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+                            <svg class="w-3.5 h-3.5 text-transparent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <span class="block text-sm">Business Model Viability</span>
+                        </div>
+                    </li>
+                    <li id="nav-step-3" class="check-item flex items-start gap-4 text-slate-500">
+                        <div class="check-icon w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+                            <svg class="w-3.5 h-3.5 text-transparent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <span class="block text-sm">Financial Repayment Capacity</span>
+                        </div>
+                    </li>
+                    <li id="nav-step-4" class="check-item flex items-start gap-4 text-slate-500">
+                        <div class="check-icon w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 mt-0.5 transition-colors">
+                            <svg class="w-3.5 h-3.5 text-transparent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <span class="block text-sm">Risk, SBA Mandates & Collateral</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <div class="w-full md:w-2/3 lg:w-3/4 pb-20 relative">
+
+            <div id="step-1" class="step-content active space-y-12">
+                <div class="text-left">
+                    <div class="inline-block mb-4 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+                        SBA 7(a) Real Estate Acquisition
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-6">
+                        The <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-emerald-500">"No-OpEx"</span> Disruption
+                    </h1>
+                    <p class="text-lg text-slate-600 leading-relaxed">
+                        OverIT is acquiring <strong>455 Glen Iris Dr NE, Atlanta</strong> to launch an immersive "Experience Center". We displace legacy vendors by eliminating monthly fees, creating a recession-proof revenue model backed by solid real estate.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="card p-6 border-t-4 border-slate-900">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Loan Request</div>
+                        <div class="text-3xl font-black text-slate-900 mt-2">$640k</div>
+                        <div class="text-sm text-slate-500 mt-1 font-medium">Acquisition & Buildout</div>
+                    </div>
+                    <div class="card p-6 border-t-4 border-emerald-500 bg-emerald-50/50">
+                        <div class="text-xs font-bold text-emerald-700 uppercase tracking-wide">Min DSCR (Floor)</div>
+                        <div class="text-3xl font-black text-emerald-600 mt-2">2.61x</div>
+                        <div class="text-sm text-emerald-700 mt-1 font-medium">Exceptional repayment capacity</div>
+                    </div>
+                </div>
+
+                <div class="card p-6 md:p-8 bg-slate-900 text-white relative overflow-hidden">
+                    <div class="absolute right-0 top-0 opacity-10 text-[150px] leading-none translate-x-4 -translate-y-8">✍️</div>
+                    <h2 class="text-2xl font-bold mb-6">Borrower Identity: Cameron Champion</h2>
+                    <div class="flex flex-col md:flex-row gap-6 items-start relative z-10">
+                        <img src="headshot-cameron-champion.png" alt="Cameron Champion" class="w-24 h-24 rounded-full object-cover border-2 border-slate-700">
+                        <div class="space-y-4 text-slate-300 text-sm leading-relaxed">
+                            <p>Bringing decades of enterprise technology leadership, Cameron previously scaled an organization to over 1,500 employees. He is a recognized Ubiquiti-Certified Trainer applicant and the founder of WiFi-U.</p>
+                            <blockquote class="border-l-4 border-sky-500 pl-4 italic text-slate-200">
+                                "My journey taught me early that no barrier stands between me and my goals – except the ones I believe are there. The mission of this institution will leave those in its wake better."
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-2" class="step-content space-y-12">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Frictionless Synergy: The 4 Pillars</h2>
+                    <p class="text-slate-600 mt-3 text-lg leading-relaxed">
+                        Operating four distinct business lines under a single facility overhead drastically lowers our breakeven threshold.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">1. Zero-Inventory Retail</h3>
+                        <p class="text-sm text-slate-600">A physical showroom for the UniFi ecosystem. We hold no local stock (10% drop-ship commission), eliminating inventory risk.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">2. HOA/Condo Retrofits</h3>
+                        <p class="text-sm text-slate-600">The "DoorKing Killer". Replacing legacy entry systems to eliminate perpetual monthly telecom/software fees for HOAs.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">3. National Training</h3>
+                        <p class="text-sm text-slate-600">Official Ubiquiti certification courses. High-margin tuition covers base facility debt service alone.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">4. Retail Modernization</h3>
+                        <p class="text-sm text-slate-600">Standardized network rollouts for multi-location retail brands (10-50 sites) yielding a 15% scale uplift.</p>
+                    </div>
+                </div>
+
+                <div class="card p-8 bg-slate-50 border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-900 mb-6">Market Disruption: Eliminating OpEx</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-700 mb-2">The DoorKing Killer (Mid-Market)</h4>
+                            <div class="chart-container" style="height: 200px;"><canvas id="tcoDKChart"></canvas></div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-700 mb-2">ButterflyMX Disruptor (Luxury)</h4>
+                            <div class="chart-container" style="height: 200px;"><canvas id="tcoBMXChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-3" class="step-content space-y-12">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Ability to Repay: Interactive Modeler</h2>
+                    <p class="text-slate-600 mt-3 text-lg leading-relaxed">
+                        Stress-test the business model against the $55,200 annual debt service. Adjust the levers to view real-time Debt Service Coverage Ratios (DSCR).
+                    </p>
+                </div>
+
+                <div class="card p-6 border-t-4 border-sky-500">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 pb-8 border-b border-slate-100">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Gross Margin</div>
+                            <div class="text-3xl font-bold text-slate-900 mt-1 tracking-tight" id="out-margin">$0</div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Est. NOI</div>
+                            <div class="text-3xl font-bold text-slate-900 mt-1 tracking-tight" id="out-noi">$0</div>
+                        </div>
+                        <div id="dscr-card" class="p-3 -mt-3 rounded-lg bg-emerald-50 border border-emerald-100">
+                            <div class="text-xs font-bold text-emerald-800 uppercase tracking-wide">DSCR</div>
+                            <div class="text-4xl font-black text-emerald-600 tracking-tight" id="out-dscr">0.00x</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5 mb-8">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2"><span class="font-medium">Training Seats / Mo</span><span id="val-in-train" class="text-sky-600 font-bold font-mono">20</span></div>
+                            <input type="range" id="sl-train" min="5" max="80" value="20" oninput="updateModelFromSliders()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-2"><span class="font-medium">DoorKing Retrofits / Mo</span><span id="val-in-dk" class="text-sky-600 font-bold font-mono">2</span></div>
+                            <input type="range" id="sl-dk" min="0" max="15" value="2" oninput="updateModelFromSliders()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-2"><span class="font-medium">Retail Sites / Mo</span><span id="val-in-ret" class="text-sky-600 font-bold font-mono">10</span></div>
+                            <input type="range" id="sl-ret" min="0" max="40" value="10" oninput="updateModelFromSliders()">
+                        </div>
+                        <input type="hidden" id="sl-bmx" value="1">
+                        <input type="hidden" id="sl-walk" value="50000">
+                        <input type="hidden" id="sl-centers" value="1">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">Revenue Mix</h3>
+                            <div class="chart-container" style="height: 180px;"><canvas id="dynMixChart"></canvas></div>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wide">NOI vs Debt Service</h3>
+                            <div class="chart-container" style="height: 180px;"><canvas id="dynCashChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-4" class="step-content space-y-12">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">SBA Mandates & Risk Mitigation</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-6 bg-slate-50">
+                        <h3 class="font-bold text-slate-900 mb-4 border-b pb-2">SBA Job Creation Mandate</h3>
+                        <p class="text-sm text-slate-600 mb-4">
+                            We do not employ a massive army of W-2 installers. Instead, we use our facility to train, certify, and empower independent IT professionals via Ubiquiti Academy.
+                        </p>
+                        <p class="text-sm text-emerald-700 font-semibold">
+                            By approving this loan, the SBA funds an incubator that creates tax-paying, independent small business owners.
+                        </p>
+                    </div>
+
+                    <div class="card p-6 bg-slate-50">
+                        <h3 class="font-bold text-slate-900 mb-4 border-b pb-2">Risk Mitigants</h3>
+                        <ul class="space-y-3 text-sm text-slate-600">
+                            <li><strong>Recession Resilience:</strong> Our "No Subscription" pitch becomes 2x more effective as clients look to cut OPEX in a downturn.</li>
+                            <li><strong>Diversified Floor:</strong> Training revenue provides a stable cash flow floor that covers debt service independent of hardware sales.</li>
+                            <li><strong>Collateral:</strong> 1st position lien on mixed-use office in high-demand Atlanta corridor (51% owner-occupied).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="pledge" class="card p-8 md:p-10 bg-white text-center border-t-8 border-slate-900 shadow-xl">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Back the Disruption</h2>
+                    <p class="text-slate-600 mb-8 max-w-lg mx-auto">
+                        You have reviewed the model, the margins, and the mitigants. Secure your position in the OverIT ecosystem today.
+                    </p>
+                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 max-w-sm mx-auto shadow-inner">
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1T3nesCGxl9KuWBjd4veCIYQ"
+                            publishable-key="pk_live_51T0a2vCGxl9KuWBjUS63kpmT7j4381IChVb8QITO5uKyBqDun03FYtfedJNIInutPBiB6x8PNXoft9CAaOQdITzB00AdAslvZt"
+                        ></stripe-buy-button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-controls fixed bottom-0 left-0 w-full md:absolute md:bottom-0 md:left-0 bg-white/90 backdrop-blur border-t border-slate-200 p-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+                <button id="btn-prev" onclick="changeStep(-1)" class="px-5 py-2.5 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-100 transition invisible">
+                    &larr; Back
+                </button>
+                <button id="btn-next" onclick="changeStep(1)" class="px-6 py-2.5 rounded-lg text-sm font-bold bg-sky-600 text-white hover:bg-sky-700 transition shadow-md flex items-center gap-2">
+                    Next: Market Viability &rarr;
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- Wizard Logic ---
+        let currentStep = 1;
+        const totalSteps = 4;
+        const stepTitles = [
+            "",
+            "Market Viability",
+            "Financial Capacity",
+            "Risk & Mitigation",
+            "Complete"
+        ];
+
+        function changeStep(direction) {
+            const newStep = currentStep + direction;
+            if (newStep < 1 || newStep > totalSteps) return;
+
+            // Hide old step
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            
+            // Update checklist styles
+            const oldCheckItem = document.getElementById(`nav-step-${currentStep}`);
+            if (direction > 0) {
+                // Moving forward: mark current as completed
+                oldCheckItem.classList.remove('active');
+                oldCheckItem.classList.add('completed');
+                oldCheckItem.querySelector('svg').classList.remove('text-transparent');
+            } else {
+                // Moving backward: unmark previous step
+                const prevCheckItem = document.getElementById(`nav-step-${newStep}`);
+                prevCheckItem.classList.remove('completed');
+                prevCheckItem.classList.add('active');
+                prevCheckItem.querySelector('svg').classList.add('text-transparent');
+            }
+
+            // Show new step
+            currentStep = newStep;
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            
+            // Highlight new checklist item if moving forward
+            if (direction > 0) {
+                document.getElementById(`nav-step-${currentStep}`).classList.add('active');
+            }
+
+            // Update Buttons
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            
+            if (currentStep === 1) {
+                btnPrev.classList.add('invisible');
+            } else {
+                btnPrev.classList.remove('invisible');
+            }
+
+            if (currentStep === totalSteps) {
+                btnNext.classList.add('hidden');
+            } else {
+                btnNext.classList.remove('hidden');
+                btnNext.innerHTML = `Next: ${stepTitles[currentStep]} &rarr;`;
+            }
+
+            // Fix Chart.js rendering issue in hidden divs
+            if (currentStep === 2 && !tcoDKChart) initStaticCharts();
+            if (currentStep === 3) {
+                if (!dynMixChart) initDynamicCharts();
+                updateModelFromSliders(); // Force a redraw/recalc
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // --- Financial Constants & State ---
+        const MARGINS = { training: 1500, dk: 2500, bmx: 4000, retail: 1500, walkinPct: 0.10 };
+        const BASE_OPEX = 120000;      
+        const BASE_DEBT = 55200;       
+        const EXPANSION_OPEX = 150000; 
+
+        let dynMixChart, dynCashChart, tcoDKChart, tcoBMXChart;
+        const fmtMoney = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+
+        function updateModelFromSliders() {
+            // Read UI Sliders
+            const centers = parseInt(document.getElementById('sl-centers').value);
+            const trainVol = parseInt(document.getElementById('sl-train').value);
+            const dkVol = parseInt(document.getElementById('sl-dk').value);
+            const bmxVol = parseInt(document.getElementById('sl-bmx').value);
+            const retVol = parseInt(document.getElementById('sl-ret').value);
+            const walkVol = parseInt(document.getElementById('sl-walk').value);
+
+            // Update Labels
+            document.getElementById('val-in-train').innerText = trainVol;
+            document.getElementById('val-in-dk').innerText = dkVol;
+            document.getElementById('val-in-ret').innerText = retVol;
+
+            // Calculate Annual Margins
+            const mTrain = trainVol * MARGINS.training * 12 * centers;
+            const mDk = dkVol * MARGINS.dk * 12 * centers;
+            const mBmx = bmxVol * MARGINS.bmx * 12 * centers;
+            const mRet = retVol * MARGINS.retail * 12 * centers;
+            const mWalk = walkVol * MARGINS.walkinPct * 12 * centers;
+
+            const totalMargin = mTrain + mDk + mBmx + mRet + mWalk;
+            let totalOpex = BASE_OPEX;
+            if (centers > 1) totalOpex += (centers - 1) * EXPANSION_OPEX;
+            
+            const noi = totalMargin - totalOpex;
+            const dscr = noi / BASE_DEBT;
+
+            // Update UI Outputs
+            document.getElementById('out-margin').innerText = fmtMoney(totalMargin);
+            document.getElementById('out-noi').innerText = fmtMoney(noi);
+            
+            const dscrEl = document.getElementById('out-dscr');
+            const dscrCard = document.getElementById('dscr-card');
+            
+            if (noi < 0) {
+                dscrEl.innerText = "Neg.";
+                dscrCard.className = "p-3 -mt-3 rounded-lg bg-rose-50 border border-rose-100";
+                dscrEl.className = "text-4xl font-black text-rose-600 tracking-tight";
+            } else {
+                dscrEl.innerText = dscr.toFixed(2) + "x";
+                if(dscr < 1.15) {
+                    dscrCard.className = "p-3 -mt-3 rounded-lg bg-amber-50 border border-amber-100";
+                    dscrEl.className = "text-4xl font-black text-amber-600 tracking-tight";
+                } else {
+                    dscrCard.className = "p-3 -mt-3 rounded-lg bg-emerald-50 border border-emerald-100";
+                    dscrEl.className = "text-4xl font-black text-emerald-600 tracking-tight";
+                }
+            }
+
+            // Update Charts if they exist
+            if(dynMixChart) {
+                dynMixChart.data.datasets[0].data = [mTrain, mDk + mBmx, mRet, mWalk];
+                dynMixChart.update();
+            }
+            if(dynCashChart) {
+                dynCashChart.data.datasets[0].data = [BASE_DEBT]; 
+                dynCashChart.data.datasets[1].data = [noi > 0 ? noi : 0]; 
+                dynCashChart.update();
+            }
+        }
+
+        // --- Chart Initialization ---
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        function initDynamicCharts() {
+            const ctxMix = document.getElementById('dynMixChart').getContext('2d');
+            dynMixChart = new Chart(ctxMix, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Training', 'Retrofits', 'Retail', 'Walk-in'],
+                    datasets: [{ 
+                        data: [0,0,0,0], 
+                        backgroundColor: ['#4f46e5', '#e11d48', '#d97706', '#0284c7'], 
+                        borderWidth: 0, hoverOffset: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } }, cutout: '70%' }
+            });
+
+            const ctxCash = document.getElementById('dynCashChart').getContext('2d');
+            dynCashChart = new Chart(ctxCash, {
+                type: 'bar',
+                data: {
+                    labels: ['Annual Financials'],
+                    datasets: [
+                        { label: 'Debt Service', data: [BASE_DEBT], backgroundColor: '#f43f5e', borderRadius: 4 },
+                        { label: 'NOI', data: [0], backgroundColor: '#10b981', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, border:{display:false} }, x: { grid: {display:false}, border:{display:false} } } }
+            });
+        }
+
+        function initStaticCharts() {
+            const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { border: { display: false } }, x: { grid: { display: false }, border: { display: false } } } };
+
+            tcoDKChart = new Chart(document.getElementById('tcoDKChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
+                    datasets: [
+                        { label: 'Legacy', data: [7500, 11100, 14700, 18018], borderColor: '#94a3b8', tension: 0.3, borderWidth: 3 },
+                        { label: 'OverIT', data: [4196, 4196, 4196, 4196], borderColor: '#10b981', tension: 0.3, borderWidth: 3 }
+                    ]
+                },
+                options: commonOptions
+            });
+
+            tcoBMXChart = new Chart(document.getElementById('tcoBMXChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
+                    datasets: [
+                        { label: 'Subscription', data: [12000, 15600, 19200, 22800], borderColor: '#e11d48', tension: 0.3, borderWidth: 3 },
+                        { label: 'OverIT', data: [6000, 6000, 6000, 6000], borderColor: '#10b981', tension: 0.3, borderWidth: 3 }
+                    ]
+                },
+                options: commonOptions
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OverIT - SBA Loan Commercial Risk Assessment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Stripe Integration -->
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .chart-container { position: relative; width: 100%; max-width: 100%; margin: 0 auto; height: 280px; max-height: 350px; }
+        .card { 
+            background: white; border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+            transition: transform 0.2s, box-shadow 0.2s; overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Custom Sliders */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
+            background: #0ea5e9; cursor: pointer; margin-top: -8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; cursor: pointer; background: #e2e8f0; border-radius: 3px;
+        }
+        input[type=range]:focus { outline: none; }
+        .macro-btn.active { background-color: #0f172a; color: white; border-color: #0f172a; }
+        
+        /* Coin Animation */
+        .coin-wrapper { perspective: 1000px; width: 80px; height: 80px; margin: 0 auto; }
+        .coin {
+            width: 100%; height: 100%; position: relative; transition: transform 1s;
+            transform-style: preserve-3d; animation: spin-coin 6s linear infinite;
+        }
+        .coin-face {
+            position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            backface-visibility: hidden; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; font-weight: bold; color: white; border: 4px solid #fbbf24;
+        }
+        .coin-front { background: linear-gradient(45deg, #f59e0b, #fbbf24); }
+        .coin-back { background: linear-gradient(45deg, #fbbf24, #f59e0b); transform: rotateY(180deg); }
+        @keyframes spin-coin { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .img-overlay { background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0) 100%); }
+        .letter-bg { background-image: radial-gradient(#1e293b 1px, transparent 1px); background-size: 20px 20px; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold tracking-tight text-slate-900">Over<span class="text-sky-600">IT</span></span>
+                    <span class="ml-4 px-3 py-1 rounded-full bg-slate-100 text-xs font-medium text-slate-500 hidden sm:inline-block">SBA 7(a) Prospectus</span>
+                </div>
+                <div class="hidden md:flex space-x-6 text-sm font-medium text-slate-600">
+                    <a href="#executive" class="hover:text-sky-600 transition">Summary</a>
+                    <a href="#ecosystem" class="hover:text-sky-600 transition">Pillars</a>
+                    <a href="#financials" class="hover:text-sky-600 transition">Financials</a>
+                    <a href="#leadership" class="hover:text-sky-600 transition">Leadership</a>
+                </div>
+                <a href="#pledge" class="bg-emerald-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-emerald-700 transition shadow-md flex items-center">
+                    <span>Invest Now</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <!-- 1. Executive Summary -->
+        <section id="executive" class="space-y-6">
+            <div class="text-center max-w-4xl mx-auto">
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">The "No-OpEx" Disruption Model</h1>
+                <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                    OverIT is acquiring <strong>455 Glen Iris Dr NE</strong> to launch an immersive "Experience Center". We displace legacy access control vendors by eliminating monthly fees, while simultaneously creating a pipeline of certified IT talent.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
+                <div class="card p-6 border-t-4 border-slate-800">
+                    <div class="text-xs font-semibold text-slate-400 uppercase">Loan Request</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">$640,000</div>
+                    <div class="text-sm text-slate-500 mt-1">Acquisition & Imp.</div>
+                </div>
+                <div class="card p-6 border-t-4 border-slate-800">
+                    <div class="text-xs font-semibold text-slate-400 uppercase">Property Value</div>
+                    <div class="text-2xl font-bold text-slate-900 mt-1">$800,000</div>
+                    <div class="text-sm text-slate-500 mt-1">Owner-Occupied</div>
+                </div>
+                <div class="card p-6 border-t-4 border-sky-500 bg-sky-50">
+                    <div class="text-xs font-semibold text-sky-600 uppercase">Shared OpEx Advantage</div>
+                    <div class="text-xl font-bold text-sky-700 mt-1 leading-tight">Multiple Synergies</div>
+                    <div class="text-sm text-sky-600 mt-1">Under 1 facility overhead</div>
+                </div>
+                <div class="card p-6 border-t-4 border-emerald-500 bg-emerald-50">
+                    <div class="text-xs font-semibold text-emerald-600 uppercase">Min DSCR (Floor)</div>
+                    <div class="text-3xl font-bold text-emerald-700 mt-1">2.61x</div>
+                    <div class="text-sm text-emerald-600 mt-1">Cash flow to debt</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. The Business Ecosystem -->
+        <section id="ecosystem" class="space-y-8">
+            <div class="mb-2 border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">The OverIT Ecosystem: Frictionless Synergy</h2>
+                <div class="mt-4 p-4 bg-slate-800 text-slate-100 rounded-lg border-l-4 border-sky-500 text-sm leading-relaxed shadow-md">
+                    <p>
+                        <strong>More than just four pillars.</strong> While this prospectus highlights our foundational models below, the OverIT ecosystem encompasses <em>multiple synergistic lines of business</em> operating under a single facility overhead. Any one of these lines has the margin capacity to independently repay this loan in its entirety. By offering them simultaneously, we eliminate friction, capture every stage of the customer lifecycle, and rapidly build enduring B2B relationships.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Pillar 1 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&q=80&w=600" alt="Retail Experience" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4"><h3 class="text-white font-bold text-lg">1. Zero-Inventory Retail</h3></div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">Visitors experience the full UniFi ecosystem hands-on. We hold <strong>zero physical inventory</strong>.</p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> 10% commission on drop-shipped orders.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> Corporate gifts initial display hardware.</li>
+                            <li class="flex items-start"><span class="text-sky-500 mr-2">✓</span> Zero logistical or shrinkage risk.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=600" alt="Access Control" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4"><h3 class="text-white font-bold text-lg">2. Multi-Family Retrofit</h3></div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">The "DoorKing Killer". Replacing legacy entry systems to eliminate monthly OpEx for HOAs.</p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> Cuts client costs by up to 77%.</li>
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> Counter-cyclical (sells better in downturns).</li>
+                            <li class="flex items-start"><span class="text-rose-500 mr-2">✓</span> High-margin design/enablement fees.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=600" alt="Training Center" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4"><h3 class="text-white font-bold text-lg">3. National Training</h3></div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">Certified training for IT professionals utilizing the Experience Center infrastructure.</p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> High-margin tuition revenue.</li>
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Covers base facility debt service alone.</li>
+                            <li class="flex items-start"><span class="text-indigo-500 mr-2">✓</span> Builds the alumni installation network.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="card flex flex-col h-full group">
+                    <div class="h-40 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=600" alt="Retail Modernization" class="object-cover w-full h-full group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 img-overlay flex items-end p-4"><h3 class="text-white font-bold text-lg">4. Retail Modernization</h3></div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <p class="text-sm text-slate-600">Standardized network & security rollouts for multi-location retail brands.</p>
+                        <ul class="mt-4 space-y-2 text-sm text-slate-600">
+                            <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Highly scalable 15% uplift model.</li>
+                            <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Leverages alumni network for labor.</li>
+                            <li class="flex items-start"><span class="text-amber-500 mr-2">✓</span> Experience center closes enterprise deals.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Guided Learning: Why the Win-Win Wins So Well! -->
+        <section id="winwin" class="space-y-6">
+            <div class="mb-2 border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">Why the Win-Win Works Wonders!</h2>
+                <p class="text-slate-500 mt-2 max-w-3xl">Interact with the value chain below. In our models, every stakeholder benefits simultaneously.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="card p-6 border-l-4 border-emerald-500 hover:bg-slate-50 cursor-pointer" onclick="toggleWin('win1')">
+                    <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-slate-900">🏢 The Property Owner / HOA</h3><span class="text-emerald-500 font-bold text-xl">+</span></div>
+                    <div id="win1" class="hidden mt-4 pt-4 border-t border-slate-200">
+                        <p class="text-sm text-slate-500 mb-2"><strong>The Old Pain:</strong> Bleeding $150+/month on dedicated telephone lines.</p>
+                        <p class="text-sm font-medium text-emerald-700"><strong>The OverIT Win:</strong> $0 monthly fees. Moving to CapEx increases NOI and property value.</p>
+                    </div>
+                </div>
+                <div class="card p-6 border-l-4 border-sky-500 hover:bg-slate-50 cursor-pointer" onclick="toggleWin('win2')">
+                    <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-slate-900">💼 The Property Manager</h3><span class="text-sky-500 font-bold text-xl">+</span></div>
+                    <div id="win2" class="hidden mt-4 pt-4 border-t border-slate-200">
+                        <p class="text-sm text-slate-500 mb-2"><strong>The Old Pain:</strong> Driving to site to program fobs manually.</p>
+                        <p class="text-sm font-medium text-sky-700"><strong>The OverIT Win:</strong> 100% Cloud Management. Issue keys remotely.</p>
+                    </div>
+                </div>
+                <div class="card p-6 border-l-4 border-indigo-500 hover:bg-slate-50 cursor-pointer" onclick="toggleWin('win3')">
+                    <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-slate-900">🏠 The Resident</h3><span class="text-indigo-500 font-bold text-xl">+</span></div>
+                    <div id="win3" class="hidden mt-4 pt-4 border-t border-slate-200">
+                        <p class="text-sm text-slate-500 mb-2"><strong>The Old Pain:</strong> Missing deliveries on outdated audio callboxes.</p>
+                        <p class="text-sm font-medium text-indigo-700"><strong>The OverIT Win:</strong> Unlock doors with a phone and answer high-def video calls anywhere.</p>
+                    </div>
+                </div>
+                <div class="card p-6 border-l-4 border-amber-500 hover:bg-slate-50 cursor-pointer" onclick="toggleWin('win4')">
+                    <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-slate-900">🔧 The Alumni Installer</h3><span class="text-amber-500 font-bold text-xl">+</span></div>
+                    <div id="win4" class="hidden mt-4 pt-4 border-t border-slate-200">
+                        <p class="text-sm text-slate-500 mb-2"><strong>The Old Pain:</strong> Hunting for leads and bidding against competitors.</p>
+                        <p class="text-sm font-medium text-amber-700"><strong>The OverIT Win:</strong> Turnkey business. We hand ready-to-install projects to Academy Graduates.</p>
+                    </div>
+                </div>
+            </div>
+            <script>function toggleWin(id) { document.getElementById(id).classList.toggle('hidden'); }</script>
+        </section>
+
+        <!-- SBA Job Creation & Impact -->
+        <section id="impact" class="card p-8 bg-slate-900 text-white relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 opacity-10 text-[200px]">🎓</div>
+            <div class="relative z-10">
+                <div class="inline-block px-3 py-1 bg-sky-500/20 text-sky-400 font-semibold text-xs rounded-full uppercase tracking-wide mb-4 border border-sky-500/30">
+                    SBA Community Impact
+                </div>
+                <h2 class="text-3xl font-bold mb-4">Creating the Next IT Workforce</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+                    <div class="lg:col-span-2 space-y-4 text-slate-300">
+                        <p>Since 2012, Ubiquiti Academy's certification program has rapidly expanded, overseeing the training of more than <strong>50,000 students worldwide</strong>. OverIT is bringing this engine to the local community.</p>
+                        <p><strong>The OverIT Multiplier Effect:</strong> We explicitly <em>do not</em> employ a massive army of W-2 installers. Instead, we train and certify professionals, and then feed our sold retrofit and retail projects directly to our Alumni network, building tax-paying small businesses.</p>
+                    </div>
+                    <div class="bg-slate-800 p-5 rounded-lg border border-slate-700">
+                        <h4 class="font-bold text-white mb-3 text-sm uppercase tracking-wider">Certifications Granted</h4>
+                        <ul class="space-y-2 text-sm text-slate-300">
+                            <li class="flex items-center"><span class="mr-2">✨</span> UniFi Full Stack Pro (UFSP)</li>
+                            <li class="flex items-center"><span class="mr-2">📡</span> UniFi Wireless Admin (UWA)</li>
+                            <li class="flex items-center"><span class="mr-2">🔒</span> UniFi Security Admin (URSCA)</li>
+                            <li class="flex items-center"><span class="mr-2">🌐</span> UISP Broadband Specialist</li>
+                            <li class="flex items-center"><span class="mr-2">💻</span> UniFi Network Pro (UNP)</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Visuals of Training -->
+                <div class="grid grid-cols-3 gap-4 mt-8">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=400" alt="Training Class" class="rounded-lg opacity-80 hover:opacity-100 transition h-32 w-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=400" alt="Hands on Tech" class="rounded-lg opacity-80 hover:opacity-100 transition h-32 w-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=400" alt="Network Config" class="rounded-lg opacity-80 hover:opacity-100 transition h-32 w-full object-cover">
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Disruption: TCO -->
+        <section class="space-y-6">
+            <div class="mb-2 border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-bold text-slate-900">Market Disruption: Eliminating OpEx</h2>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card p-6 border-t-4 border-slate-700">
+                    <h3 class="font-bold text-slate-900 mb-2">Low/Mid-Market: The DoorKing Killer</h3>
+                    <div class="chart-container"><canvas id="tcoDKChart"></canvas></div>
+                    <div class="mt-4 p-3 bg-slate-50 rounded text-center border border-slate-200">
+                        <span class="block text-xs font-bold text-slate-500 uppercase">3-Year Client Savings</span>
+                        <span class="text-2xl font-black text-emerald-600">77% Savings</span>
+                    </div>
+                </div>
+                <div class="card p-6 border-t-4 border-slate-700">
+                    <h3 class="font-bold text-slate-900 mb-2">Luxury Market: The ButterflyMX Disruptor</h3>
+                    <div class="chart-container"><canvas id="tcoBMXChart"></canvas></div>
+                    <div class="mt-4 p-3 bg-slate-50 rounded text-center border border-slate-200">
+                        <span class="block text-xs font-bold text-slate-500 uppercase">3-Year Client Savings</span>
+                        <span class="text-2xl font-black text-emerald-600">$16,800+ Retained</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. DYNAMIC FINANCIAL MODELER -->
+        <section id="financials" class="space-y-6">
+            <div class="mb-2 border-b border-slate-200 pb-4"><h2 class="text-3xl font-bold text-slate-900">Interactive Repayment Modeler</h2></div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 space-y-6 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="mb-6">
+                        <h3 class="font-bold text-sm text-slate-900 mb-2 uppercase tracking-wide">Select Scenario</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setMacroScenario('floor')" id="btn-macro-floor" class="macro-btn active px-3 py-1.5 text-xs font-bold rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition-all">Conservative (Floor)</button>
+                            <button onclick="setMacroScenario('base')" id="btn-macro-base" class="macro-btn px-3 py-1.5 text-xs font-bold rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition-all">Base Case</button>
+                            <button onclick="setMacroScenario('stretch')" id="btn-macro-stretch" class="macro-btn px-3 py-1.5 text-xs font-bold rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 transition-all">Stretch Goal</button>
+                        </div>
+                        <p id="scenario-desc-text" class="text-xs text-slate-500 mt-2 italic">Based solely on minimum capacity of Training/Enablement. Assumes zero retail rollouts.</p>
+                    </div>
+                    <div class="space-y-5 border-t border-slate-100 pt-4">
+                        <h3 class="font-bold text-lg text-slate-900 mb-4">Revenue Levers</h3>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">Training Seats (Monthly)</span><span id="val-in-train" class="text-slate-500 font-mono">20</span></div>
+                            <input type="range" id="sl-train" min="5" max="80" value="20" oninput="updateModelFromSliders()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">DoorKing Retrofits (Monthly)</span><span id="val-in-dk" class="text-slate-500 font-mono">2</span></div>
+                            <input type="range" id="sl-dk" min="0" max="15" value="2" oninput="updateModelFromSliders()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">ButterflyMX Retrofits (Monthly)</span><span id="val-in-bmx" class="text-slate-500 font-mono">1</span></div>
+                            <input type="range" id="sl-bmx" min="0" max="10" value="1" oninput="updateModelFromSliders()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">Retail Network Sites (Monthly)</span><span id="val-in-ret" class="text-slate-500 font-mono">10</span></div>
+                            <input type="range" id="sl-ret" min="0" max="40" value="10" oninput="updateModelFromSliders()">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">Store Walk-in Vol. ($/Month)</span><span id="val-in-walk" class="text-slate-500 font-mono">$50k</span></div>
+                            <input type="range" id="sl-walk" min="0" max="250000" step="5000" value="50000" oninput="updateModelFromSliders()">
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200 pt-5 mt-5">
+                        <div class="flex justify-between text-sm mb-1"><span class="font-bold text-slate-900">Number of Experience Centers</span><span id="val-in-centers" class="text-slate-900 font-bold font-mono">1</span></div>
+                        <input type="range" id="sl-centers" min="1" max="5" value="1" oninput="updateModelFromSliders()" class="accent-slate-900">
+                    </div>
+                </div>
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="card p-5 border-l-4 border-slate-300"><div class="text-xs font-semibold text-slate-400 uppercase">Gross Margin</div><div class="text-xl font-bold text-slate-900 mt-1" id="out-margin">$0</div></div>
+                        <div class="card p-5 border-l-4 border-slate-300"><div class="text-xs font-semibold text-slate-400 uppercase">Est. NOI</div><div class="text-xl font-bold text-slate-900 mt-1" id="out-noi">$0</div></div>
+                        <div class="card p-5 border-l-4 border-emerald-500 bg-emerald-50" id="dscr-card"><div class="text-xs font-semibold text-emerald-700 uppercase">DSCR</div><div class="text-2xl font-black text-emerald-700 mt-1" id="out-dscr">0.00x</div></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="card p-5"><h3 class="text-sm font-semibold text-slate-900 mb-4">Revenue Mix</h3><div class="chart-container" style="height: 200px;"><canvas id="dynMixChart"></canvas></div></div>
+                        <div class="card p-5"><h3 class="text-sm font-semibold text-slate-900 mb-4">NOI vs. Debt Svc</h3><div class="chart-container" style="height: 200px;"><canvas id="dynCashChart"></canvas></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use of Funds, Collateral & Risk -->
+        <section class="space-y-6">
+            <h2 class="text-2xl font-bold text-slate-900 border-b border-slate-200 pb-2">Use of Funds & Risk</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="card p-6 bg-white">
+                    <h3 class="font-bold text-slate-900 mb-4">Use of Funds & Collateral</h3>
+                    <table class="w-full text-sm text-left border-collapse">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50">
+                            <tr><th class="px-3 py-2 border-b">Category</th><th class="px-3 py-2 border-b text-right">Amount</th></tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <tr><td class="px-3 py-2 font-medium">Real Estate Acquisition</td><td class="px-3 py-2 text-right text-slate-900">$640,000</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Leasehold Improvements</td><td class="px-3 py-2 text-right text-slate-900">$50,000</td></tr>
+                            <tr><td class="px-3 py-2 font-medium">Equip. & Working Capital</td><td class="px-3 py-2 text-right text-slate-900">$110,000</td></tr>
+                            <tr class="bg-slate-50 font-bold"><td class="px-3 py-2">Total Project Cost</td><td class="px-3 py-2 text-right text-slate-900">$800,000</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-4 p-3 bg-slate-50 border border-slate-200 rounded text-sm text-slate-700">
+                        <strong>Collateral:</strong> First position lien on 455 Glen Iris Dr NE. Mixed-use office in high-demand Atlanta corridor.
+                    </div>
+                </div>
+                <div class="card p-6 bg-slate-50 border border-slate-200">
+                    <h3 class="font-bold text-slate-900 mb-4">Risk Mitigation Strategy</h3>
+                    <div class="space-y-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs">S</div>
+                            <div class="ml-3"><h4 class="text-sm font-bold text-slate-900">Recession Resilience</h4><p class="text-xs text-slate-600 mt-1">Our "No Subscription" pitch becomes 2x more effective as interest rates rise.</p></div>
+                        </div>
+                        <div class="flex">
+                            <div class="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs">S</div>
+                            <div class="ml-3"><h4 class="text-sm font-bold text-slate-900">Diversified Revenue</h4><p class="text-xs text-slate-600 mt-1">Training revenue provides a stable cash flow floor independent of hardware sales.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEADERSHIP SECTION & FOUNDER'S LETTER -->
+        <section id="leadership" class="space-y-8 my-16">
+            <h2 class="text-3xl font-bold text-slate-900 border-b border-slate-200 pb-2">At the Helm</h2>
+            
+            <!-- Leadership Profiles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                <!-- Cameron -->
+                <div class="card flex flex-col h-full bg-white border border-slate-200">
+                    <div class="p-6 flex items-start gap-4">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&h=150&q=80" alt="Cameron Champion" class="w-20 h-20 rounded-full object-cover border-2 border-slate-200 shadow-sm">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900">Cameron Champion</h3>
+                            <p class="text-sm text-emerald-600 font-medium mb-2">Founder & Technical Visionary</p>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Cameron brings decades of enterprise technology leadership, having previously scaled an organization to over 1,500 employees. With deep roots architecting massive Apple/Mac enterprise infrastructures, Cameron is a recognized Ubiquiti-Certified Trainer applicant and the founder of WiFi-U. He possesses a rare talent for distilling complex IT concepts into accessible knowledge—ensuring the next generation of installers doesn't just configure hardware, but truly understands the engineering behind it.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- John -->
+                <div class="card flex flex-col h-full bg-white border border-slate-200">
+                    <div class="p-6 flex items-start gap-4">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&h=150&q=80" alt="John Shea" class="w-20 h-20 rounded-full object-cover border-2 border-slate-200 shadow-sm">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900">John Shea</h3>
+                            <p class="text-sm text-sky-600 font-medium mb-2">Strategic Partner & Operations</p>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                John brings critical operational leadership and strategic vision to the OverIT ecosystem. Ensuring the Experience Center's multiple revenue streams execute flawlessly, John manages the intricate logistics between real estate acquisition, national rollout coordination, and commercial banking relationships.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Canvas Letter -->
+            <div class="max-w-4xl mx-auto px-8 py-12 bg-slate-900 letter-bg rounded-2xl shadow-2xl border border-slate-800 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-sky-500 to-amber-500"></div>
+                
+                <h3 class="text-3xl text-white font-serif mb-2">Canvas : The Power to Create</h3>
+                <p class="text-sm text-emerald-400 mb-8 font-medium tracking-wide uppercase">Founder’s Letter – to friends, supporters, collaborators, Investors…</p>
+                
+                <div class="space-y-6 text-slate-300 font-serif text-lg leading-relaxed">
+                    <p>Should you choose to invest in this plan, you should know who will be responsible for your investment, what guides me through the unknown to come, and how our efforts will make a difference even in the face of the worst of circumstances.</p>
+                    
+                    <p>My name is Cameron Champion. My journey taught me early that no barrier stands between me and my goals – except the ones I believe are there. My mentors have shown me that loving without expectation is the only force capable of healing the soul. Curiosity or taking on challenges simply for the sake of doing so is all one needs to bring excitement for what tomorrow may hold. Any fears of the unknown are quelled by authentically being driven by a desire to leave everything you touch better than you found it – and if you mess something up, take it as the challenge it is – be better, and figure out how to leave something better because of it. At all times, and especially when you don’t know what to do, just treat others as you’d like to be treated. My grandmother taught me that these ideas transcend culture, religion, language, and time. Try to inspire others when possible, even if all you do is let them see you act on what feels right to you. And most importantly, she said, never forget who you are… because people need you to be you.</p>
+                    
+                    <p>I didn’t understand all of that as a child, of course, yet it stuck with me because, thankfully, she left that guiding light of hers inside of me. She left it to my mother, and I was lucky enough to feel it as I grew, learned, adventured, became strong in myself, and eventually started creating things of my own. It was only when I learned to share these things with others, that I found other creators, and together, built great things that were bigger than self and had a life of their own.</p>
+                    
+                    <p>Perfect, right? Except, those great things brought a sense of pride, and a drive to protect them. When the chosen family of creators who collaborated in building those great things were harmed, I stopped creating and lost myself in pursuit of the person who chose to harm them.</p>
+
+                    <p>That period of darkness, when I woke each day to fight for the return of something stolen, for anything that could make it make sense – what a waste. I realized that thieves wouldn’t need to steal if they had the power to create themselves, and when creators choose to fixate on loss, grief, or the results of their creations more than the act of creating itself – we inadvertently create a cancer in ourselves which makes us forget who we are… it holds us in darkness… isolates us from joy and from each other… it renders us inconsequential to all those who we may otherwise have benefited had we just kept creating.</p>
+                    
+                    <p class="text-white font-medium border-l-4 border-emerald-500 pl-4 py-3 my-6 bg-slate-800/50">
+                        This “smallness” eats away at us... until we’re completely empty. <br><br>
+                        For far too long I made it my mission to pursue the billionaire who, without need, stole all of the monetary rewards held "safe" for my Surterra / Parallel chosen family of creators, and for each of your own families, after your years of sacrifice in service to all we built together. I felt responsible, and fought until everything was gone. One of you found me recently, and in a brief conversation, we acknowledged the emptiness we saw in each other... and as we uncomfortably spoke of the challenges we shared, authentic laughter replaced that loss and grief, and somehow that emptiness occurred, once again, as the same blank canvas from which every creation had always come.
+                    </p>
+
+                    <p>It was always there. It could never be stolen.</p>
+                    
+                    <p>I wasn’t responsible for the theft. Finally, I understand that fact. My responsibility was to continue to guide, inspire, and remind you all to keep creating in the face of that loss which hurt so badly. To all of you, I apologize for losing sight of that responsibility and for failing in that loss to be the leader who brought us all together to do what we did.</p>
+                    
+                    <p class="font-bold text-white text-xl my-6">My promise to you: Never Again.</p>
+
+                    <p><strong>To all who have given of themselves, or will, to resource and shape this endeavor:</strong> <br>
+                    The mission of this institution, which we will grow until it lives on its own momentum, will leave those in the wake of its impact, better. Better for having experienced it themselves, and better able to positively impact others. Simply because. This we build, leave, and dedicate in admiration and honor to all the truly rare humans (and working animals) who, together, built a lasting legacy that still serves communities who love, live, and count days by the minute -- because, you cared. Even in the worst times, "treating others as you'd treat yourself" was still as natural and strong as the wind. Success is measured by inspiring this in others and enabling them to do the same.</p>
+                    
+                    <div class="mt-8 pt-8 border-t border-slate-800">
+                        <p class="text-slate-400 italic mb-2">Respectfully yours,</p>
+                        <p class="text-2xl text-emerald-400 font-bold font-sans">Cameron</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INVESTMENT PLEDGE TOOL (Stripe Integrated) -->
+        <section id="pledge" class="card p-8 bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-300 relative overflow-hidden shadow-inner">
+            <div class="relative z-10 max-w-3xl mx-auto">
+                <div class="text-center mb-8">
+                    <!-- Spinning Coin Animation -->
+                    <div class="coin-wrapper mb-6">
+                        <div class="coin">
+                            <div class="coin-face coin-front">$</div>
+                            <div class="coin-face coin-back">IT</div>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Back the Disruption</h2>
+                    <p class="text-slate-600">Secure your position in the OverIT ecosystem. Register your investment pledge below or process your deposit immediately via Stripe.</p>
+                </div>
+
+                <div id="pledge-form" class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+                    
+                    <!-- Real Stripe Integration -->
+                    <div class="mb-8 p-6 bg-slate-50 border border-slate-200 rounded-lg text-center flex flex-col items-center justify-center">
+                        <h3 class="font-bold text-slate-800 mb-2">Direct Investment Deposit</h3>
+                        <p class="text-sm text-slate-500 mb-6">Use the secure portal below to process your initial commitment instantly.</p>
+                        
+                        <!-- Embedded Stripe Component -->
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1T3nesCGxl9KuWBjd4veCIYQ"
+                            publishable-key="pk_live_51T0a2vCGxl9KuWBjUS63kpmT7j4381IChVb8QITO5uKyBqDun03FYtfedJNIInutPBiB6x8PNXoft9CAaOQdITzB00AdAslvZt"
+                        >
+                        </stripe-buy-button>
+                    </div>
+
+                    <div class="relative flex py-5 items-center">
+                        <div class="flex-grow border-t border-slate-300"></div>
+                        <span class="flex-shrink-0 mx-4 text-slate-400 text-sm font-bold uppercase">Or Register Intent</span>
+                        <div class="flex-grow border-t border-slate-300"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 mt-2">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Full Name / Entity</label>
+                            <input type="text" id="pledge-name" class="w-full bg-slate-50 border border-slate-300 rounded py-2 px-3 text-slate-900 focus:outline-none focus:border-emerald-500" placeholder="e.g. Jane Doe Capital">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Contact Email</label>
+                            <input type="email" id="pledge-email" class="w-full bg-slate-50 border border-slate-300 rounded py-2 px-3 text-slate-900 focus:outline-none focus:border-emerald-500" placeholder="jane@example.com">
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Pledge Amount ($)</label>
+                        <select id="pledge-amount" class="w-full bg-slate-50 border border-slate-300 rounded py-2 px-3 text-slate-900 focus:outline-none focus:border-emerald-500">
+                            <option value="50000">$50,000 - Seed Backer</option>
+                            <option value="100000">$100,000 - Growth Partner</option>
+                            <option value="250000">$250,000 - Strategic Investor</option>
+                            <option value="640000">$640,000 - Full Debt Facility (SBA Lead)</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="submitPledge()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded transition text-center shadow-md">
+                        Submit Offline Pledge
+                    </button>
+                </div>
+
+                <!-- Success State -->
+                <div id="pledge-success" class="hidden text-center py-8">
+                    <div class="text-5xl mb-4">🎉</div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-2">Pledge Registered!</h3>
+                    <p class="text-slate-600">Thank you for backing OverIT. Our finance team will contact you within 24 hours.</p>
+                    <button onclick="resetPledge()" class="mt-6 text-sm text-emerald-600 hover:text-emerald-800 underline">Submit another pledge</button>
+                </div>
+            </div>
+            
+            <script>
+                function submitPledge() {
+                    const name = document.getElementById('pledge-name').value;
+                    if(!name) { alert("Please enter a name."); return; }
+                    document.getElementById('pledge-form').classList.add('hidden');
+                    document.getElementById('pledge-success').classList.remove('hidden');
+                }
+                function resetPledge() {
+                    document.getElementById('pledge-form').classList.remove('hidden');
+                    document.getElementById('pledge-success').classList.add('hidden');
+                    document.getElementById('pledge-name').value = '';
+                }
+            </script>
+        </section>
+
+    </main>
+
+    <!-- App Logic for Financials -->
+    <script>
+        const MARGINS = { training: 1500, dk: 2500, bmx: 4000, retail: 1500, walkinPct: 0.10 };
+        const BASE_OPEX = 120000;      
+        const BASE_DEBT = 55200;       
+        const EXPANSION_OPEX = 150000; 
+
+        const MACRO_SCENARIOS = {
+            floor: { desc: "Based solely on minimum capacity of Training/Enablement. Assumes zero retail rollouts.", train: 20, dk: 2, bmx: 0, ret: 0, walk: 0, centers: 1 },
+            base: { desc: "Expected scenario. Moderate adoption of Retail Modernization and steady Condo Retrofit projects.", train: 35, dk: 4, bmx: 2, ret: 10, walk: 50000, centers: 1 },
+            stretch: { desc: "Optimistic model assuming max capacity on Training, aggressive Retail rollout, and Experience Center expansion.", train: 60, dk: 10, bmx: 5, ret: 25, walk: 150000, centers: 2 }
+        };
+
+        let dynMixChart, dynCashChart, tcoDKChart, tcoBMXChart;
+        const fmtMoney = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(num);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initStaticCharts();
+            initDynamicCharts();
+            setMacroScenario('floor');
+        });
+
+        function setMacroScenario(key) {
+            document.querySelectorAll('.macro-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-macro-${key}`).classList.add('active');
+            document.getElementById('scenario-desc-text').innerText = MACRO_SCENARIOS[key].desc;
+
+            const s = MACRO_SCENARIOS[key];
+            document.getElementById('sl-train').value = s.train;
+            document.getElementById('sl-dk').value = s.dk;
+            document.getElementById('sl-bmx').value = s.bmx;
+            document.getElementById('sl-ret').value = s.ret;
+            document.getElementById('sl-walk').value = s.walk;
+            document.getElementById('sl-centers').value = s.centers;
+
+            updateModelFromSliders();
+        }
+
+        function updateModelFromSliders() {
+            const centers = parseInt(document.getElementById('sl-centers').value);
+            const trainVol = parseInt(document.getElementById('sl-train').value);
+            const dkVol = parseInt(document.getElementById('sl-dk').value);
+            const bmxVol = parseInt(document.getElementById('sl-bmx').value);
+            const retVol = parseInt(document.getElementById('sl-ret').value);
+            const walkVol = parseInt(document.getElementById('sl-walk').value);
+
+            document.getElementById('val-in-centers').innerText = centers;
+            document.getElementById('val-in-train').innerText = trainVol;
+            document.getElementById('val-in-dk').innerText = dkVol;
+            document.getElementById('val-in-bmx').innerText = bmxVol;
+            document.getElementById('val-in-ret').innerText = retVol;
+            document.getElementById('val-in-walk').innerText = fmtMoney(walkVol);
+
+            const mTrain = trainVol * MARGINS.training * 12 * centers;
+            const mDk = dkVol * MARGINS.dk * 12 * centers;
+            const mBmx = bmxVol * MARGINS.bmx * 12 * centers;
+            const mRet = retVol * MARGINS.retail * 12 * centers;
+            const mWalk = walkVol * MARGINS.walkinPct * 12 * centers;
+
+            const totalMargin = mTrain + mDk + mBmx + mRet + mWalk;
+            let totalOpex = BASE_OPEX;
+            if (centers > 1) totalOpex += (centers - 1) * EXPANSION_OPEX;
+            
+            const noi = totalMargin - totalOpex;
+            const dscr = noi / BASE_DEBT;
+
+            document.getElementById('out-margin').innerText = fmtMoney(totalMargin);
+            document.getElementById('out-noi').innerText = fmtMoney(noi);
+            
+            const dscrEl = document.getElementById('out-dscr');
+            const dscrCard = document.getElementById('dscr-card');
+            
+            if (noi < 0) {
+                dscrEl.innerText = "Negative";
+                dscrCard.className = "card p-5 border-l-4 border-red-500 bg-red-50";
+                dscrEl.className = "text-2xl font-black text-red-700 mt-1";
+            } else {
+                dscrEl.innerText = dscr.toFixed(2) + "x";
+                if(dscr < 1.15) {
+                    dscrCard.className = "card p-5 border-l-4 border-amber-500 bg-amber-50";
+                    dscrEl.className = "text-2xl font-black text-amber-700 mt-1";
+                } else {
+                    dscrCard.className = "card p-5 border-l-4 border-emerald-500 bg-emerald-50";
+                    dscrEl.className = "text-2xl font-black text-emerald-700 mt-1";
+                }
+            }
+
+            dynMixChart.data.datasets[0].data = [mTrain, mDk + mBmx, mRet, mWalk];
+            dynMixChart.update();
+
+            dynCashChart.data.datasets[0].data = [BASE_DEBT];
+            dynCashChart.data.datasets[1].data = [noi > 0 ? noi : 0];
+            dynCashChart.update();
+        }
+
+        function initDynamicCharts() {
+            const ctxMix = document.getElementById('dynMixChart').getContext('2d');
+            dynMixChart = new Chart(ctxMix, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Training', 'Multi-Family Retrofits', 'Retail Rollouts', 'Walk-in Store'],
+                    datasets: [{ data: [0,0,0,0], backgroundColor: ['#6366f1', '#f43f5e', '#f59e0b', '#0ea5e9'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } }, cutout: '65%' }
+            });
+
+            const ctxCash = document.getElementById('dynCashChart').getContext('2d');
+            dynCashChart = new Chart(ctxCash, {
+                type: 'bar',
+                data: {
+                    labels: ['Annual Financials'],
+                    datasets: [
+                        { label: 'Debt Service Required', data: [BASE_DEBT], backgroundColor: '#ef4444', barPercentage: 0.6 },
+                        { label: 'Generated Cash Flow (NOI)', data: [0], backgroundColor: '#10b981', barPercentage: 0.6 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function initStaticCharts() {
+            const ctxDK = document.getElementById('tcoDKChart').getContext('2d');
+            tcoDKChart = new Chart(ctxDK, {
+                type: 'line',
+                data: {
+                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
+                    datasets: [
+                        { label: 'DoorKing (Tel/Cell)', data: [7500, 11100, 14700, 18018], borderColor: '#64748b', backgroundColor: '#64748b', tension: 0.1, borderWidth: 3 },
+                        { label: 'UniFi Access (No Fees)', data: [4196, 4196, 4196, 4196], borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.1, borderWidth: 3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            const ctxBMX = document.getElementById('tcoBMXChart').getContext('2d');
+            tcoBMXChart = new Chart(ctxBMX, {
+                type: 'line',
+                data: {
+                    labels: ['Install', 'Year 1', 'Year 2', 'Year 3'],
+                    datasets: [
+                        { label: 'ButterflyMX (Sub)', data: [12000, 15600, 19200, 22800], borderColor: '#e11d48', backgroundColor: '#e11d48', tension: 0.1, borderWidth: 3 },
+                        { label: 'UniFi Access (CapEx)', data: [6000, 6000, 6000, 6000], borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.1, borderWidth: 3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+    </script>
+</body>
+</html>
